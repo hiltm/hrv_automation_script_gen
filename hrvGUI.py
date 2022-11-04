@@ -78,6 +78,7 @@ defaultextension=".txt",filetypes=[("All Files","*.*"),("Text Documents","*.txt"
 def increment_counter():
 	global currRep
 	currRep+=1
+	print(currRep)
 
 def set_background_image(parent):
 	my_path = os.path.abspath(os.path.dirname(__file__))
@@ -89,7 +90,7 @@ def set_background_image(parent):
 def set_num_reps(value):
 	global numReps
 	numReps = value
-	
+
 #######################################################################################
 #                                   Root Window                                       #
 #######################################################################################
@@ -132,7 +133,6 @@ class confirmationWindow(tk.Frame):
 		label.grid(row = 0, column = 1, padx = 10, pady = 10)
 
 		cancelConfirmationLabelTabOne = tk.Label(self, text="Are you sure that you would like to cancel?")
-		tk.Label(self, text="Max is 2000mL").grid(row=0,column=2)
 
 		buttonConfirm = tk.Button(self, text="Yes", command = lambda : controller.show_frame(StartPage))
 		buttonDisagree = tk.Button(self, text="No", command = lambda : controller.show_frame(parameterTabs))
@@ -254,7 +254,7 @@ class parameterTabs(tk.Frame):
 		tabControl.add(tab4, text ='Sample Ports and Timing')
 		tabControl.pack(expand = 1, fill ="both")
 
-		#for i in range(3):													# TODO replace hard-coded with numReps.get()	
+	
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#
 #									Tab 1											 #
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#
@@ -375,7 +375,7 @@ class parameterTabs(tk.Frame):
 
 
 #######################################################################################
-		button2 = ttk.Button(self, text ="Repetition Confirmation", command = lambda : increment_counter())
+		button2 = ttk.Button(self, text ="Repetition Confirmation", command = lambda : [increment_counter(),tk.Frame.update])
 		button2.pack(expand = 1, side = LEFT)
 
 		button2 = ttk.Button(self, text ="Cancel", command = lambda : controller.show_frame(confirmationWindow))
