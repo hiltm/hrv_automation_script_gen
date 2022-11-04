@@ -12,10 +12,12 @@ from tkinter.filedialog import asksaveasfile
 import os.path
 
 currRep = 0
+numReps = 1
+
 
 LARGEFONT =("Verdana", 35)
 class tkinterApp(tk.Tk):
-
+	
 	# __init__ function for class tkinterApp
 	def __init__(self, *args, **kwargs):
 		
@@ -84,6 +86,10 @@ def set_background_image(parent):
 	background_label = tk.Label(parent, image=background_image)
 	background_label.place(x=0, y=0, relwidth=1, relheight=1)
 
+def set_num_reps(value):
+	global numReps
+	numReps = value
+	
 #######################################################################################
 #                                   Root Window                                       #
 #######################################################################################
@@ -248,8 +254,6 @@ class parameterTabs(tk.Frame):
 		tabControl.add(tab4, text ='Sample Ports and Timing')
 		tabControl.pack(expand = 1, fill ="both")
 
-		
-
 		#for i in range(3):													# TODO replace hard-coded with numReps.get()	
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#
 #									Tab 1											 #
@@ -388,11 +392,11 @@ class fileConfiguration(tk.Frame):
 		label.grid(row = 0, column = 1, padx = 10, pady = 10)
 
 		userinput = 2																							# TODO fix entry of repetitions
-		numReps=tk.IntVar(None)
-		dirname=ttk.Entry(label,numReps.get(),width=10)
+		numRepsInput=tk.IntVar(None)
+		dirname=ttk.Entry(label,numRepsInput.get(),width=10)
 		dirname.grid(row=2,column=1)
 
-		button3 = ttk.Button(self, text ="OK", command = lambda : numReps.set(3))
+		button3 = ttk.Button(self, text ="OK", command = lambda : set_num_reps(dirname.get()))
 		button3.grid(row = 2, column = 5, padx = 20, pady = 20)
 
 		tk.Label(self, text="Confirm system repetitions then click Continue").grid(row=3,column=1)
