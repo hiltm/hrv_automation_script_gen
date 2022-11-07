@@ -14,6 +14,7 @@ from datetime import date
 
 currRep = 0
 numReps = 1
+configfile = ''
 
 
 LARGEFONT =("Verdana", 35)
@@ -58,15 +59,17 @@ class tkinterApp(tk.Tk):
 #######################################################################################
 
 def save_file():
-	filepath = os.path.abspath(os.path.dirname(__file__))
+	global configfile
+	#filepath = os.path.abspath(os.path.dirname(__file__))
 	filename = 'MS-SID_Automation_Configuration_' + date.today().strftime("%d-%m-%Y")
-	#completepath = os.path.join(filepath, filename+".cfg")
-	f = asksaveasfile(initialfile = filename + '.cfg',
-	defaultextension=".cfg",filetypes=[("All Files","*.*"),("Text Documents","*.cfg")])
-	file1 = open(f.name, "w")
-	toFile = "1"
-	
-	
+	configfile = asksaveasfile(initialfile = filename + '.cfg',
+		defaultextension=".cfg",filetypes=[("All Files","*.*"),("Text Documents","*.cfg")])
+
+def write_text(passed_string):
+	global configfile
+	f = open(configfile.name, "w")
+	f.write(passed_string)
+
 
 def set_background_image(parent):
 	my_path = os.path.abspath(os.path.dirname(__file__))
@@ -144,7 +147,7 @@ class createNewConfigFile(tk.Frame):
 		#)
 		#button2.grid(row = 5, column = 1, padx = 10, pady = 10)
 
-		button3=ttk.Button(self, text ="Adjust Parameters", command = lambda : controller.show_frame(fileConfiguration))
+		button3=ttk.Button(self, text ="Adjust Parameters", command = lambda : controller.show_frame(fileConfiguration)) #TODO prevent button press without first save file location
 		button3.grid(row = 6, column = 1, padx = 10, pady = 10)
 
 #######################################################################################
@@ -315,7 +318,7 @@ class parameterTabs(tk.Frame):
 		spacerLabel = tk.Label(self, text=(""))																# TODO use this later, possibly for start time? runtime?
 		spacerLabel.pack(expand=True, fill='none', side = LEFT)
 		
-		button2 = ttk.Button(self, text ="Repetition Confirmation", command = lambda : [increment_counter(),self.update()])
+		button2 = ttk.Button(self, text ="Repetition Confirmation", command = lambda : [write_text("Vb:1"),increment_counter(),self.update()])
 		button2.pack(expand = 1, side = LEFT)
 
 		repetitionLabel = tk.Label(self, text=("Repetition # " + str(currRep)))
@@ -342,7 +345,7 @@ class fileConfiguration(tk.Frame):
 		button3.grid(row = 2, column = 5, padx = 20, pady = 20)
 
 		tk.Label(self, text="Confirm system repetitions then click Continue").grid(row=3,column=1) #TODO check for valid entry, complain if not valid
-		button4 = ttk.Button(self, text ="Continue", command = lambda : controller.show_frame(parameterTabs))
+		button4 = ttk.Button(self, text ="Continue", command = lambda : [controller.show_frame(parameterTabs)])
 		button4.grid(row = 4, column = 1, padx = 20, pady = 20)
 
 #######################################################################################
