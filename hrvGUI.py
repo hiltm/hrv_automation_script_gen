@@ -12,7 +12,7 @@ from tkinter.filedialog import asksaveasfile
 import os.path
 from datetime import date
 
-currRep = 0
+#currRep = 0
 numReps = 1
 configfile = ''
 
@@ -26,6 +26,11 @@ class tkinterApp(tk.Tk):
 		# __init__ function for class Tk
 		tk.Tk.__init__(self, *args, **kwargs)
 		tk.Tk.title(self,'MS-SID Automation Configuration')
+		self.shared_data = {
+			"currRep" : 0,
+			"numReps" : 1,
+			"configfile" : ''
+		}
 
 		# creating a container
 		container = tk.Frame(self)
@@ -90,6 +95,7 @@ class StartPage(tk.Frame):
 	def __init__(self, parent, controller):
 		set_background_image(parent)
 		tk.Frame.__init__(self, parent)
+		self.controller=controller
 
 		label = ttk.Label(self, text ="HRV Automation Configuration", font = LARGEFONT)
 		label.grid(row = 0, column = 1, padx = 20, pady = 20)
@@ -109,6 +115,9 @@ class StartPage(tk.Frame):
 class confirmationWindow(tk.Frame):		
 	def __init__(self, parent, controller):
 		tk.Frame.__init__(self, parent)
+		self.controller=controller
+
+
 		label=ttk.Label(self, text ="Cancel Confirmation", font = LARGEFONT)
 		label.grid(row = 0, column = 1, padx = 10, pady = 10)
 
@@ -129,6 +138,7 @@ class createNewConfigFile(tk.Frame):
 	def __init__(self, parent, controller):
 		
 		tk.Frame.__init__(self, parent)
+		self.controller=controller
 
 		label=ttk.Label(self, text ="Create New Config File", font = LARGEFONT)
 		label.grid(row = 0, column = 1, padx = 10, pady = 10)
@@ -158,6 +168,7 @@ class createNewConfigFile(tk.Frame):
 class modifyExistingConfigFile(tk.Frame):
 	def __init__(self, parent, controller):
 		tk.Frame.__init__(self, parent)
+		self.controller=controller
 
 		label = ttk.Label(self, text ="Modify Existing Config File", font = LARGEFONT)
 		label.grid(row = 0, column = 4, padx = 10, pady = 10)
@@ -177,16 +188,18 @@ class modifyExistingConfigFile(tk.Frame):
 class repetitionSummary(tk.Frame):
 	def __init__(self, parent, controller):
 		tk.Frame.__init__(self, parent)
+		self.controller=controller
 
 		def increment_counter():
-			global currRep
-			currRep+=1
+			#global currRep
+			self.controller.shared_data[currRep]+=1
 			#repetitionLabel['text'] = 'Repetition # ' + str(currRep)
 
 		label=ttk.Label(self, text ="Repetition Summary Confirmation", font = LARGEFONT)
 		label.grid(row = 0, column = 0, padx = 10, pady = 10)
 
-		
+		#parameterTabs.g
+		#get_parameter_array
 
 		cancelConfirmationLabelTabOne = tk.Label(self, text="Are you sure that you would like to continue to next repetition?")
 		buttonConfirm = tk.Button(self, text="Yes", command = lambda : [write_text("Vb:1"),increment_counter(),controller.show_frame(parameterTabs)])
@@ -202,6 +215,7 @@ class repetitionSummary(tk.Frame):
 class parameterTabs(tk.Frame):
 	def __init__(self, parent, controller):
 		tk.Frame.__init__(self,parent)
+		self.controller=controller
 	
 		label=ttk.Label(self, text ="Configuration Parameters", font = LARGEFONT)
 		tabControl = ttk.Notebook(self) 
@@ -335,9 +349,11 @@ class parameterTabs(tk.Frame):
 		buttonForward.grid(row=5, column = 0, padx=15, pady=15)
 		buttonBack.grid(row=5, column = 2, padx=15, pady=15)
 
-		parameterArray = [currRep, chamberVolumeEntryTabOne.get(), sampleSizeEntryTabOne.get(), flushVolumeEntryTabTwo.get(), flushRepetitionsEntryTabTwo.get(),
+		parameterArray = [self.controller.shared_data["currRep"], chamberVolumeEntryTabOne.get(), sampleSizeEntryTabOne.get(), flushVolumeEntryTabTwo.get(), flushRepetitionsEntryTabTwo.get(),
 		injectorVolumeEntryTabThree.get(), sampleVolumeEntryTabThree.get(), sampleSizetimeEntryTabFour.get(), samplePortsEntryTabFour.get(), sampleWaitTimesEntryTabFour.get(), repetitionWaitTimesEntryTabFour.get()]
 		# TODO pass this to repetitionSummary frame
+		def get_parameter_array(self, parameterArray):
+			return self.frames[parameterArray]
 
 
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#
@@ -349,7 +365,7 @@ class parameterTabs(tk.Frame):
 		button2 = ttk.Button(self, text ="Repetition Confirmation", command = lambda : [controller.show_frame(repetitionSummary)]) # TODO go to summary window before confirming
 		button2.pack(expand = 1, side = LEFT)
 
-		repetitionLabel = tk.Label(self, text=("Repetition # " + str(currRep)))
+		repetitionLabel = tk.Label(self, text=("Repetition # " + str(self.controller.shared_data["currRep"])))
 		repetitionLabel.pack(expand=True, fill='none', side = RIGHT)
 
 		button2 = ttk.Button(self, text ="Cancel", command = lambda : controller.show_frame(confirmationWindow))
@@ -362,6 +378,9 @@ class parameterTabs(tk.Frame):
 class fileConfiguration(tk.Frame):
 	def __init__(self, parent, controller):
 		tk.Frame.__init__(self, parent)
+		self.controller=controller
+
+
 		label=ttk.Label(self, text ="File Configuration", font = LARGEFONT)
 		label.grid(row = 0, column = 1, padx = 10, pady = 10)
 
