@@ -12,7 +12,6 @@ from tkinter.filedialog import asksaveasfile
 import os.path
 from datetime import date
 
-#currRep = 0
 numReps = 1
 configfile = ''
 
@@ -190,16 +189,12 @@ class repetitionSummary(tk.Frame):
 		tk.Frame.__init__(self, parent)
 		self.controller=controller
 
-		def increment_counter():
-			#global currRep
-			self.controller.shared_data[currRep]+=1
+		#def increment_counter():
+			#self.controller.shared_data["currRep"]+=1
 			#repetitionLabel['text'] = 'Repetition # ' + str(currRep)
 
 		label=ttk.Label(self, text ="Repetition Summary Confirmation", font = LARGEFONT)
 		label.grid(row = 0, column = 0, padx = 10, pady = 10)
-
-		#parameterTabs.g
-		#get_parameter_array
 
 		cancelConfirmationLabelTabOne = tk.Label(self, text="Are you sure that you would like to continue to next repetition?")
 		buttonConfirm = tk.Button(self, text="Yes", command = lambda : [write_text("Vb:1"),increment_counter(),controller.show_frame(parameterTabs)])
@@ -231,9 +226,8 @@ class parameterTabs(tk.Frame):
 		tabControl.pack(expand = 1, fill ="both")
 
 		def increment_counter():
-			global currRep
-			currRep+=1
-			repetitionLabel['text'] = 'Repetition # ' + str(currRep)
+			self.controller.shared_data["currRep"]+=1
+			repetitionLabel['text'] = 'Repetition # ' + str(self.controller.shared_data["currRep"])
 
 	
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#
@@ -362,7 +356,7 @@ class parameterTabs(tk.Frame):
 		spacerLabel = tk.Label(self, text=(""))																# TODO use this later, possibly for start time? runtime?
 		spacerLabel.pack(expand=True, fill='none', side = LEFT)
 		
-		button2 = ttk.Button(self, text ="Repetition Confirmation", command = lambda : [controller.show_frame(repetitionSummary)]) # TODO go to summary window before confirming
+		button2 = ttk.Button(self, text ="Repetition Confirmation", command = lambda : [increment_counter()]) # TODO go to summary window before confirming
 		button2.pack(expand = 1, side = LEFT)
 
 		repetitionLabel = tk.Label(self, text=("Repetition # " + str(self.controller.shared_data["currRep"])))
