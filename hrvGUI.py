@@ -38,7 +38,7 @@ class tkinterApp(tk.Tk):
 		self.frames = {}
 
 		# iterating through a tuple consisting of the different page layouts
-		for F in (StartPage, createNewConfigFile, modifyExistingConfigFile, fileConfiguration, parameterTabs, confirmationWindow):
+		for F in (StartPage, createNewConfigFile, modifyExistingConfigFile, fileConfiguration, parameterTabs, confirmationWindow, repetitionSummary):
 			frame = F(container, self)
 
 			# initializing frame of that object from above tuple respectively with for loop
@@ -170,6 +170,30 @@ class modifyExistingConfigFile(tk.Frame):
 							command = lambda : controller.show_frame(StartPage))
 		button2.grid(row = 2, column = 1, padx = 10, pady = 10)
 
+#######################################################################################
+#                           	 Repetition Summary                            		  #
+#######################################################################################
+
+class repetitionSummary(tk.Frame):
+	def __init__(self, parent, controller):
+		tk.Frame.__init__(self, parent)
+
+		def increment_counter():
+			global currRep
+			currRep+=1
+			#repetitionLabel['text'] = 'Repetition # ' + str(currRep)
+
+		label=ttk.Label(self, text ="Repetition Summary Confirmation", font = LARGEFONT)
+		label.grid(row = 0, column = 0, padx = 10, pady = 10)
+
+		
+
+		cancelConfirmationLabelTabOne = tk.Label(self, text="Are you sure that you would like to continue to next repetition?")
+		buttonConfirm = tk.Button(self, text="Yes", command = lambda : [write_text("Vb:1"),increment_counter(),controller.show_frame(parameterTabs)])
+		buttonDisagree = tk.Button(self, text="No", command = lambda : controller.show_frame(StartPage))
+		cancelConfirmationLabelTabOne.grid(row=1, column=0)
+		buttonConfirm.grid(row=2, column = 0, padx=15, pady=15)
+		buttonDisagree.grid(row=2, column = 1, padx=15, pady=15)														
 
 #######################################################################################
 #                            Parameter Tabs                              		 	  #
@@ -230,15 +254,15 @@ class parameterTabs(tk.Frame):
 		flushVolumeLabelTabTwo=tk.Label(tab2, textvariable=flushVolumeTextTabTwo).grid(row = 1, column = 1)
 
 		directory=tk.StringVar(None)
-		dirname=ttk.Entry(tab2,textvariable=directory,width=10)
-		dirname.grid(row=1,column=2)	
+		flushVolumeEntryTabTwo=ttk.Entry(tab2,textvariable=directory,width=10)
+		flushVolumeEntryTabTwo.grid(row=1,column=2)	
 
 		flushRepetitionsTextTabTwo=tk.StringVar(tab2, "Enter flush repetitions") #TODO check for valid entry, complain if not valid
 		flushRepetitionsLabelTabTwo=tk.Label(tab2, textvariable=flushRepetitionsTextTabTwo).grid(row = 2, column = 1)
 
 		directory=tk.StringVar(None)
-		dirname=ttk.Entry(tab2,textvariable=directory,width=10)
-		dirname.grid(row=2,column=2)	
+		flushRepetitionsEntryTabTwo=ttk.Entry(tab2,textvariable=directory,width=10)
+		flushRepetitionsEntryTabTwo.grid(rowEntryolumn=2)	
 
 		buttonForward = tk.Button(tab2, text="Forward", command = lambda : tabControl.select(tab3))
 		buttonBack = tk.Button(tab2, text="Back", command = lambda : tabControl.select(tab1))
@@ -253,15 +277,15 @@ class parameterTabs(tk.Frame):
 		injectorVolumeLabelTabThree=tk.Label(tab3, textvariable=injectorVolumeTextTabThree).grid(row = 1, column = 1)
 
 		directory=tk.StringVar(None)
-		dirname=ttk.Entry(tab3,textvariable=directory,width=10)
-		dirname.grid(row=1,column=2)
+		injectorVolumeEntryTabThree=ttk.Entry(tab3,textvariable=directory,width=10)
+		injectorVolumeEntryTabThree.grid(row=1,column=2)
 
 		sampleVolumeTextTabThree=tk.StringVar(tab3, "Enter sample volume (mL)") #TODO check for valid entry, complain if not valid
 		sampleVolumeLabelTabThree=tk.Label(tab3, textvariable=sampleVolumeTextTabThree).grid(row = 2, column = 1)
 
 		directory=tk.StringVar(None)
-		dirname=ttk.Entry(tab3,textvariable=directory,width=10)
-		dirname.grid(row=2,column=2)
+		sampleVolumeEntryTabThree=ttk.Entry(tab3,textvariable=directory,width=10)
+		sampleVolumeEntryTabThree.grid(row=2,column=2)
 
 		buttonForward = tk.Button(tab3, text="Forward", command = lambda : tabControl.select(tab4))
 		buttonBack = tk.Button(tab3, text="Back", command = lambda : tabControl.select(tab2))
@@ -278,38 +302,42 @@ class parameterTabs(tk.Frame):
 		tk.Label(tab4, text="Enter in military time e.g. 18:00").grid(row=1,column=3)
 
 		directory=tk.StringVar(None)
-		dirname=ttk.Entry(tab4,textvariable=directory,width=10)
-		dirname.grid(row=1,column=2)
+		sampleSizetimeEntryTabFour=ttk.Entry(tab4,textvariable=directory,width=10)
+		sampleSizetimeEntryTabFour.grid(row=1,column=2)
 
 		samplePortsTextTabFour=tk.StringVar(tab4, "Enter Ports") #TODO check for valid entry, complain if not valid
 		samplePortsLabelTabFour=tk.Label(tab4, textvariable=samplePortsTextTabFour).grid(row = 2, column = 1)
 		tk.Label(tab4, text="Enter even ports with commas e.g. 2,4,6").grid(row=2,column=3)
 
 		directory=tk.StringVar(None)
-		dirname=ttk.Entry(tab4,textvariable=directory,width=10)
-		dirname.grid(row=2,column=2)
+		samplePortsEntryTabFour=ttk.Entry(tab4,textvariable=directory,width=10)
+		samplePortsEntryTabFour.grid(row=2,column=2)
 
 		sampleWaitTimesTextTabFour=tk.StringVar(tab4, "Enter between Samples") #TODO check for valid entry, complain if not valid
 		sampleWaitTimesLabelTabFour=tk.Label(tab4, textvariable=sampleWaitTimesTextTabFour).grid(row = 3, column = 1)
 		tk.Label(tab4, text="Enter in seconds").grid(row=3,column=3)
 
 		directory=tk.StringVar(None)
-		dirname=ttk.Entry(tab4,textvariable=directory,width=10)
-		dirname.grid(row=3,column=2)
+		sampleWaitTimesEntryTabFour=ttk.Entry(tab4,textvariable=directory,width=10)
+		sampleWaitTimesEntryTabFour.grid(row=3,column=2)
 
 		repetitionWaitTimesTextTabFour=tk.StringVar(tab4, "Time between next Sample Study") #TODO check for valid entry, complain if not valid
 		repetitionWaitTimesLabelTabFour=tk.Label(tab4, textvariable=repetitionWaitTimesTextTabFour).grid(row = 4, column = 1)
 		tk.Label(tab4, text="Enter in seconds").grid(row=4,column=3)
 
 		directory=tk.StringVar(None)
-		dirname=ttk.Entry(tab4,textvariable=directory,width=10)
-		dirname.grid(row=4,column=2)
+		repetitionWaitTimesEntryTabFour=ttk.Entry(tab4,textvariable=directory,width=10)
+		repetitionWaitTimesEntryTabFour.grid(row=4,column=2)
 
 		buttonForward = tk.Button(tab4, text="Forward", command = lambda : tabControl.select(tab1))
 		buttonBack = tk.Button(tab4, text="Back", command = lambda : tabControl.select(tab3))
 
 		buttonForward.grid(row=5, column = 0, padx=15, pady=15)
 		buttonBack.grid(row=5, column = 2, padx=15, pady=15)
+
+		parameterArray = [currRep, chamberVolumeEntryTabOne.get(), sampleSizeEntryTabOne.get(), flushVolumeEntryTabTwo.get(), flushRepetitionsEntryTabTwo.get(),
+		injectorVolumeEntryTabThree.get(), sampleVolumeEntryTabThree.get(), sampleSizetimeEntryTabFour.get(), samplePortsEntryTabFour.get(), sampleWaitTimesEntryTabFour.get(), repetitionWaitTimesEntryTabFour.get()]
+		# TODO pass this to repetitionSummary frame
 
 
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#
@@ -318,7 +346,7 @@ class parameterTabs(tk.Frame):
 		spacerLabel = tk.Label(self, text=(""))																# TODO use this later, possibly for start time? runtime?
 		spacerLabel.pack(expand=True, fill='none', side = LEFT)
 		
-		button2 = ttk.Button(self, text ="Repetition Confirmation", command = lambda : [write_text("Vb:1"),increment_counter(),self.update()])
+		button2 = ttk.Button(self, text ="Repetition Confirmation", command = lambda : [controller.show_frame(repetitionSummary)]) # TODO go to summary window before confirming
 		button2.pack(expand = 1, side = LEFT)
 
 		repetitionLabel = tk.Label(self, text=("Repetition # " + str(currRep)))
