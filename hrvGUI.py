@@ -75,11 +75,6 @@ def save_file():
    f = asksaveasfile(initialfile = 'Untitled.txt',
 defaultextension=".txt",filetypes=[("All Files","*.*"),("Text Documents","*.txt")])
 
-def increment_counter():
-	global currRep
-	currRep+=1
-	print(currRep)
-
 def set_background_image(parent):
 	my_path = os.path.abspath(os.path.dirname(__file__))
 	icon = os.path.join(my_path, "img\WHOIropelogo2020_Black.ico")
@@ -254,6 +249,11 @@ class parameterTabs(tk.Frame):
 		tabControl.add(tab4, text ='Sample Ports and Timing')
 		tabControl.pack(expand = 1, fill ="both")
 
+		def increment_counter():
+			global currRep
+			currRep+=1
+			repetitionLabel['text'] = 'Repetition # ' + str(currRep)
+
 	
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#
 #									Tab 1											 #
@@ -272,14 +272,14 @@ class parameterTabs(tk.Frame):
 		buttonForward = tk.Button(tab1, text="Forward", command = lambda : tabControl.select(tab2))
 		buttonBack = tk.Button(tab1, text="Back")
 
-		repetitionLabelTabOne = tk.Label(tab1, text=("Repetition # " + str(currRep)))
+		#repetitionLabelTabOne = tk.Label(tab1, text=("Repetition # " + str(currRep)))
 
 		# === ADD WIDGETS TO GRID ON TAB ONE
 		chamberVolumeLabelTabOne.grid(row=0, column=0)
 		chamberVolumeEntryTabOne.grid(row=0, column=1)
 		sampleSizeLabelTabOne.grid(row=1, column=0)
 		sampleSizeEntryTabOne.grid(row=1, column=1)
-		repetitionLabelTabOne.grid(row=3, column=0)
+		#repetitionLabelTabOne.grid(row=3, column=0)
 
 		buttonForward.grid(row=2, column = 0, padx=15, pady=15)
 		buttonBack.grid(row=2, column = 2, padx=15, pady=15)
@@ -375,8 +375,16 @@ class parameterTabs(tk.Frame):
 
 
 #######################################################################################
-		button2 = ttk.Button(self, text ="Repetition Confirmation", command = lambda : [increment_counter(),tk.Frame.update])
+		spacerLabel = tk.Label(self, text=(""))																# TODO use this later, possibly for start time? runtime?
+		spacerLabel.pack(expand=True, fill='none', side = LEFT)
+		
+		button2 = ttk.Button(self, text ="Repetition Confirmation", command = lambda : [increment_counter(),self.update()])
 		button2.pack(expand = 1, side = LEFT)
+		print(currRep)
+
+		repetitionLabel = tk.Label(self, text=("Repetition # " + str(currRep)))
+		repetitionLabel.pack(expand=True, fill='none', side = RIGHT)
+
 
 		button2 = ttk.Button(self, text ="Cancel", command = lambda : controller.show_frame(confirmationWindow))
 		button2.pack(expand = 1, side = RIGHT)
