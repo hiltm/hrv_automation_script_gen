@@ -56,14 +56,6 @@ class tkinterApp(tk.Tk):
 #                                   Functions                                         #
 #######################################################################################
 
-def confirm(controller):			# TODO make this its own frame
-    #answer = askyesno(title='Confirmation',
-    #                message='Are you sure that you want to quit? All changes will be lost.')
-    #print(answer)                
-    #if answer:
-	#command = lambda : tk.Tk.destroy # tk.Tk().withdraw() # controller.show_frame(StartPage)
-	controller.show_frame(StartPage)
-
 def save_file():
    f = asksaveasfile(initialfile = 'Untitled.txt',
 defaultextension=".txt",filetypes=[("All Files","*.*"),("Text Documents","*.txt")])
@@ -135,10 +127,10 @@ class createNewConfigFile(tk.Frame):
 
 		tk.Label(self, text="Save as a .cfg file").grid(row=1,column=2)
 
-		button1=ttk.Button(self, text ="Go Home", command = lambda : confirm(controller)) # TODO fix me
+		button1=ttk.Button(self, text ="Go Home", command = lambda : controller.show_frame(StartPage))
 		button1.grid(row = 2, column = 1, padx = 10, pady = 10)
 
-		filepath = 'C:/Users/Michael/Documents/Repo/My Files/HRV GUI/'
+		filepath = os.path.abspath(os.path.dirname(__file__))
 		filename = 'test'
 		completepath = os.path.join(filepath, filename+".txt")
 		file1 = open(completepath, "w")
