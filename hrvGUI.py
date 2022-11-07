@@ -262,7 +262,7 @@ class parameterTabs(tk.Frame):
 
 		directory=tk.StringVar(None)
 		flushRepetitionsEntryTabTwo=ttk.Entry(tab2,textvariable=directory,width=10)
-		flushRepetitionsEntryTabTwo.grid(rowEntryolumn=2)	
+		flushRepetitionsEntryTabTwo.grid(row=3,column=2)	
 
 		buttonForward = tk.Button(tab2, text="Forward", command = lambda : tabControl.select(tab3))
 		buttonBack = tk.Button(tab2, text="Back", command = lambda : tabControl.select(tab1))
