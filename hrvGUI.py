@@ -28,7 +28,8 @@ class tkinterApp(tk.Tk):
 		self.shared_data = {
 			"currRep" : 0,
 			"numReps" : 1,
-			"configfile" : ''
+			"configfile" : '',
+			"param_array" : []
 		}
 
 		# creating a container
@@ -345,9 +346,7 @@ class parameterTabs(tk.Frame):
 
 		parameterArray = [self.controller.shared_data["currRep"], chamberVolumeEntryTabOne.get(), sampleSizeEntryTabOne.get(), flushVolumeEntryTabTwo.get(), flushRepetitionsEntryTabTwo.get(),
 		injectorVolumeEntryTabThree.get(), sampleVolumeEntryTabThree.get(), sampleSizetimeEntryTabFour.get(), samplePortsEntryTabFour.get(), sampleWaitTimesEntryTabFour.get(), repetitionWaitTimesEntryTabFour.get()]
-		# TODO pass this to repetitionSummary frame
-		def get_parameter_array(self, parameterArray):
-			return self.frames[parameterArray]
+		self.controller.shared_data["param_array"] = parameterArray
 
 
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#
