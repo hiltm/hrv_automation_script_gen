@@ -205,14 +205,14 @@ class parameterTabs(tk.Frame):
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#
 #									Tab 1											 #
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#
-		chamberVolumeLabelTabOne = tk.Label(tab1, text="Chamber Volume (mL):")
+		chamberVolumeLabelTabOne = tk.Label(tab1, text="Chamber Volume (mL):") #TODO check for valid entry, complain if not valid
 		chamberVolumeEntryTabOne = tk.Entry(tab1)
 		tk.Label(tab1, text="Max is 2000mL").grid(row=0,column=2)
 
 		buttonForward = tk.Button(tab1, text="Forward", command = lambda : tabControl.select(tab2))
 		buttonBack = tk.Button(tab1, text="Back")
 
-		sampleSizeLabelTabOne = tk.Label(tab1, text="How many samples to collect?")
+		sampleSizeLabelTabOne = tk.Label(tab1, text="How many samples to collect?") #TODO check for valid entry, complain if not valid
 		sampleSizeEntryTabOne = tk.Entry(tab1)
 
 		buttonForward = tk.Button(tab1, text="Forward", command = lambda : tabControl.select(tab2))
@@ -230,14 +230,14 @@ class parameterTabs(tk.Frame):
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#
 #									Tab 2											 #
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#
-		flushVolumeTextTabTwo=tk.StringVar(tab2, "Enter flush volume (mL)")
+		flushVolumeTextTabTwo=tk.StringVar(tab2, "Enter flush volume (mL)") #TODO check for valid entry, complain if not valid
 		flushVolumeLabelTabTwo=tk.Label(tab2, textvariable=flushVolumeTextTabTwo).grid(row = 1, column = 1)
 
 		directory=tk.StringVar(None)
 		dirname=ttk.Entry(tab2,textvariable=directory,width=10)
 		dirname.grid(row=1,column=2)	
 
-		flushRepetitionsTextTabTwo=tk.StringVar(tab2, "Enter flush repetitions")
+		flushRepetitionsTextTabTwo=tk.StringVar(tab2, "Enter flush repetitions") #TODO check for valid entry, complain if not valid
 		flushRepetitionsLabelTabTwo=tk.Label(tab2, textvariable=flushRepetitionsTextTabTwo).grid(row = 2, column = 1)
 
 		directory=tk.StringVar(None)
@@ -253,14 +253,14 @@ class parameterTabs(tk.Frame):
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#
 #									Tab 3											 #
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#	
-		injectorVolumeTextTabThree=tk.StringVar(tab3, "Enter injector tracer volume (mL)")
+		injectorVolumeTextTabThree=tk.StringVar(tab3, "Enter injector tracer volume (mL)") #TODO check for valid entry, complain if not valid
 		injectorVolumeLabelTabThree=tk.Label(tab3, textvariable=injectorVolumeTextTabThree).grid(row = 1, column = 1)
 
 		directory=tk.StringVar(None)
 		dirname=ttk.Entry(tab3,textvariable=directory,width=10)
 		dirname.grid(row=1,column=2)
 
-		sampleVolumeTextTabThree=tk.StringVar(tab3, "Enter sample volume (mL)")
+		sampleVolumeTextTabThree=tk.StringVar(tab3, "Enter sample volume (mL)") #TODO check for valid entry, complain if not valid
 		sampleVolumeLabelTabThree=tk.Label(tab3, textvariable=sampleVolumeTextTabThree).grid(row = 2, column = 1)
 
 		directory=tk.StringVar(None)
@@ -277,7 +277,7 @@ class parameterTabs(tk.Frame):
 #									Tab 4											 #
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#
 
-		sampleSizeTimeTabFour=tk.StringVar(tab4, "Enter Sample Start Time")
+		sampleSizeTimeTabFour=tk.StringVar(tab4, "Enter Sample Start Time") #TODO check for valid entry, complain if not valid
 		sampleSizetimeLabelTabFour=tk.Label(tab4, textvariable=sampleSizeTimeTabFour).grid(row = 1, column = 1)
 		tk.Label(tab4, text="Enter in military time e.g. 18:00").grid(row=1,column=3)
 
@@ -285,7 +285,7 @@ class parameterTabs(tk.Frame):
 		dirname=ttk.Entry(tab4,textvariable=directory,width=10)
 		dirname.grid(row=1,column=2)
 
-		samplePortsTextTabFour=tk.StringVar(tab4, "Enter Ports")
+		samplePortsTextTabFour=tk.StringVar(tab4, "Enter Ports") #TODO check for valid entry, complain if not valid
 		samplePortsLabelTabFour=tk.Label(tab4, textvariable=samplePortsTextTabFour).grid(row = 2, column = 1)
 		tk.Label(tab4, text="Enter even ports with commas e.g. 2,4,6").grid(row=2,column=3)
 
@@ -293,7 +293,7 @@ class parameterTabs(tk.Frame):
 		dirname=ttk.Entry(tab4,textvariable=directory,width=10)
 		dirname.grid(row=2,column=2)
 
-		sampleWaitTimesTextTabFour=tk.StringVar(tab4, "Enter between Samples")
+		sampleWaitTimesTextTabFour=tk.StringVar(tab4, "Enter between Samples") #TODO check for valid entry, complain if not valid
 		sampleWaitTimesLabelTabFour=tk.Label(tab4, textvariable=sampleWaitTimesTextTabFour).grid(row = 3, column = 1)
 		tk.Label(tab4, text="Enter in seconds").grid(row=3,column=3)
 
@@ -301,7 +301,7 @@ class parameterTabs(tk.Frame):
 		dirname=ttk.Entry(tab4,textvariable=directory,width=10)
 		dirname.grid(row=3,column=2)
 
-		repetitionWaitTimesTextTabFour=tk.StringVar(tab4, "Time between next Sample Study")
+		repetitionWaitTimesTextTabFour=tk.StringVar(tab4, "Time between next Sample Study") #TODO check for valid entry, complain if not valid
 		repetitionWaitTimesLabelTabFour=tk.Label(tab4, textvariable=repetitionWaitTimesTextTabFour).grid(row = 4, column = 1)
 		tk.Label(tab4, text="Enter in seconds").grid(row=4,column=3)
 
@@ -348,7 +348,7 @@ class fileConfiguration(tk.Frame):
 		button3 = ttk.Button(self, text ="OK", command = lambda : set_num_reps(dirname.get()))
 		button3.grid(row = 2, column = 5, padx = 20, pady = 20)
 
-		tk.Label(self, text="Confirm system repetitions then click Continue").grid(row=3,column=1)
+		tk.Label(self, text="Confirm system repetitions then click Continue").grid(row=3,column=1) #TODO check for valid entry, complain if not valid
 		button4 = ttk.Button(self, text ="Continue", command = lambda : controller.show_frame(parameterTabs))
 		button4.grid(row = 4, column = 1, padx = 20, pady = 20)
 
