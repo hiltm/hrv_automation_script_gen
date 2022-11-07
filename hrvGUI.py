@@ -10,6 +10,7 @@ from tkinter.messagebox import askyesno
 from tkinter.filedialog import asksaveasfile
 #import configFileGenerator as cfg
 import os.path
+from datetime import date
 
 currRep = 0
 numReps = 1
@@ -57,8 +58,15 @@ class tkinterApp(tk.Tk):
 #######################################################################################
 
 def save_file():
-   f = asksaveasfile(initialfile = 'Untitled.txt',
-defaultextension=".txt",filetypes=[("All Files","*.*"),("Text Documents","*.txt")])
+	filepath = os.path.abspath(os.path.dirname(__file__))
+	filename = 'MS-SID_Automation_Configuration_' + date.today().strftime("%d-%m-%Y")
+	#completepath = os.path.join(filepath, filename+".cfg")
+	f = asksaveasfile(initialfile = filename + '.cfg',
+	defaultextension=".cfg",filetypes=[("All Files","*.*"),("Text Documents","*.cfg")])
+	file1 = open(f.name, "w")
+	toFile = "1"
+	
+	
 
 def set_background_image(parent):
 	my_path = os.path.abspath(os.path.dirname(__file__))
@@ -130,18 +138,11 @@ class createNewConfigFile(tk.Frame):
 		button1=ttk.Button(self, text ="Go Home", command = lambda : controller.show_frame(StartPage))
 		button1.grid(row = 2, column = 1, padx = 10, pady = 10)
 
-		filepath = os.path.abspath(os.path.dirname(__file__))
-		filename = 'test'
-		completepath = os.path.join(filepath, filename+".txt")
-		file1 = open(completepath, "w")
-		toFile = "1"
-
-
-		button2=ttk.Button(self, text ="Save and Close File", command = lambda : [
-			file1.write(toFile),
-			file1.close() ]
-		)
-		button2.grid(row = 5, column = 1, padx = 10, pady = 10)
+		#button2=ttk.Button(self, text ="Save and Close File", command = lambda : [
+		#	file1.write(toFile),
+		#	file1.close() ]
+		#)
+		#button2.grid(row = 5, column = 1, padx = 10, pady = 10)
 
 		button3=ttk.Button(self, text ="Adjust Parameters", command = lambda : controller.show_frame(fileConfiguration))
 		button3.grid(row = 6, column = 1, padx = 10, pady = 10)
