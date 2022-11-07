@@ -24,8 +24,6 @@ class tkinterApp(tk.Tk):
 		# __init__ function for class Tk
 		tk.Tk.__init__(self, *args, **kwargs)
 		tk.Tk.title(self,'MS-SID Automation Configuration')
-		#photo = 'C:\Users\Michael\Documents\Repo\My Files\HRV GUI\img\WHOIropelogo2020_Black.png'
-		#tk.Tk.wm_iconbitmap(self, photo)
 
 		# creating a container
 		container = tk.Frame(self)
@@ -37,23 +35,18 @@ class tkinterApp(tk.Tk):
 		# initializing frames to an empty array
 		self.frames = {}
 
-		# iterating through a tuple consisting
-		# of the different page layouts
+		# iterating through a tuple consisting of the different page layouts
 		for F in (StartPage, createNewConfigFile, modifyExistingConfigFile, fileConfiguration, parameterTabs, confirmationWindow):
-
 			frame = F(container, self)
 
-			# initializing frame of that object from
-			# startpage, createNewConfigFile, page2 respectively with
-			# for loop
+			# initializing frame of that object from above tuple respectively with for loop
 			self.frames[F] = frame
 
 			frame.grid(row = 0, column = 0, sticky ="nsew")
 
 		self.show_frame(StartPage)
 
-	# to display the current frame passed as
-	# parameter
+	# to display the current frame passed as parameter
 	def show_frame(self, cont):
 		frame = self.frames[cont]
 		frame.tkraise()
@@ -95,26 +88,15 @@ class StartPage(tk.Frame):
 		set_background_image(parent)
 		tk.Frame.__init__(self, parent)
 
-		# label of frame Layout 2
 		label = ttk.Label(self, text ="HRV Automation Configuration", font = LARGEFONT)
-
-		# putting the grid in its place by using
-		# grid
 		label.grid(row = 0, column = 1, padx = 20, pady = 20)
 
 		button1 = ttk.Button(self, text ="Create New Config File",
 		command = lambda : controller.show_frame(createNewConfigFile))
-	
-		# putting the button in its place by
-		# using grid
 		button1.grid(row = 1, column = 1, padx = 20, pady = 20)
 
-		## button to show frame 2 with text layout2
 		button2 = ttk.Button(self, text ="Modify Existing Config File",
 		command = lambda : controller.show_frame(modifyExistingConfigFile))
-	
-		# putting the button in its place by
-		# using grid
 		button2.grid(row = 2, column = 1, padx = 20, pady = 20)
 
 
@@ -141,10 +123,10 @@ class confirmationWindow(tk.Frame):
 #######################################################################################
 
 class createNewConfigFile(tk.Frame):
-	
 	def __init__(self, parent, controller):
 		
 		tk.Frame.__init__(self, parent)
+
 		label=ttk.Label(self, text ="Create New Config File", font = LARGEFONT)
 		label.grid(row = 0, column = 1, padx = 10, pady = 10)
 
@@ -153,12 +135,7 @@ class createNewConfigFile(tk.Frame):
 
 		tk.Label(self, text="Save as a .cfg file").grid(row=1,column=2)
 
-		# button to show frame 2 with text
-		# layout2
 		button1=ttk.Button(self, text ="Go Home", command = lambda : confirm(controller)) # TODO fix me
-	
-		# putting the button in its place
-		# by using grid
 		button1.grid(row = 2, column = 1, padx = 10, pady = 10)
 
 		filepath = 'C:/Users/Michael/Documents/Repo/My Files/HRV GUI/'
@@ -174,26 +151,8 @@ class createNewConfigFile(tk.Frame):
 		)
 		button2.grid(row = 5, column = 1, padx = 10, pady = 10)
 
-
-
-
 		button3=ttk.Button(self, text ="Adjust Parameters", command = lambda : controller.show_frame(fileConfiguration))
 		button3.grid(row = 6, column = 1, padx = 10, pady = 10)
-		
-  
-		
-
-#	def genConfig(self):
-#		#cfg.generateConfigFile(self)
-#		tk.Label(self, text="First Name").grid(row=0)
-#		tk.Label(self, text="Last Name").grid(row=1)
-#
-#		e1 = tk.Entry(self)
-#		e2 = tk.Entry(self)
-#
-#		e1.grid(row=2, column=1)
-#		e2.grid(row=2, column=1)
-
 
 #######################################################################################
 #                            Modify Existing Config File                              #
@@ -203,25 +162,16 @@ class createNewConfigFile(tk.Frame):
 class modifyExistingConfigFile(tk.Frame):
 	def __init__(self, parent, controller):
 		tk.Frame.__init__(self, parent)
+
 		label = ttk.Label(self, text ="Modify Existing Config File", font = LARGEFONT)
 		label.grid(row = 0, column = 4, padx = 10, pady = 10)
 
-		# button to show frame 2 with text
-		# layout2
 		button1 = ttk.Button(self, text ="Create New Config File",
 							command = lambda : controller.show_frame(createNewConfigFile))
-	
-		# putting the button in its place by
-		# using grid
 		button1.grid(row = 1, column = 1, padx = 10, pady = 10)
 
-		# button to show frame 3 with text
-		# layout3
 		button2 = ttk.Button(self, text ="Startpage",
 							command = lambda : controller.show_frame(StartPage))
-	
-		# putting the button in its place by
-		# using grid
 		button2.grid(row = 2, column = 1, padx = 10, pady = 10)
 
 
@@ -234,15 +184,12 @@ class parameterTabs(tk.Frame):
 		tk.Frame.__init__(self,parent)
 	
 		label=ttk.Label(self, text ="Configuration Parameters", font = LARGEFONT)
-		#label.grid(row = 0, column = 1, padx = 10, pady = 10)
-
 		tabControl = ttk.Notebook(self) 
 		tab1 = ttk.Frame(tabControl)
 		tab2 = ttk.Frame(tabControl)
 		tab3 = ttk.Frame(tabControl)
 		tab4 = ttk.Frame(tabControl)
 
-		#for i in range(3):													# TODO replace hard-coded with numReps.get()
 		tabControl.add(tab1, text ='Chamber Volume')
 		tabControl.add(tab2, text ='Flushing')
 		tabControl.add(tab3, text ='Sample Volume')
@@ -267,19 +214,14 @@ class parameterTabs(tk.Frame):
 
 		sampleSizeLabelTabOne = tk.Label(tab1, text="How many samples to collect?")
 		sampleSizeEntryTabOne = tk.Entry(tab1)
-		#tk.Label(tab1, text="Max is 2000mL").grid(row=0,column=2)
 
 		buttonForward = tk.Button(tab1, text="Forward", command = lambda : tabControl.select(tab2))
 		buttonBack = tk.Button(tab1, text="Back")
 
-		#repetitionLabelTabOne = tk.Label(tab1, text=("Repetition # " + str(currRep)))
-
-		# === ADD WIDGETS TO GRID ON TAB ONE
 		chamberVolumeLabelTabOne.grid(row=0, column=0)
 		chamberVolumeEntryTabOne.grid(row=0, column=1)
 		sampleSizeLabelTabOne.grid(row=1, column=0)
 		sampleSizeEntryTabOne.grid(row=1, column=1)
-		#repetitionLabelTabOne.grid(row=3, column=0)
 
 		buttonForward.grid(row=2, column = 0, padx=15, pady=15)
 		buttonBack.grid(row=2, column = 2, padx=15, pady=15)
@@ -374,17 +316,17 @@ class parameterTabs(tk.Frame):
 		buttonBack.grid(row=5, column = 2, padx=15, pady=15)
 
 
-#######################################################################################
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#
+#								Bottom of Window									 #
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#
 		spacerLabel = tk.Label(self, text=(""))																# TODO use this later, possibly for start time? runtime?
 		spacerLabel.pack(expand=True, fill='none', side = LEFT)
 		
 		button2 = ttk.Button(self, text ="Repetition Confirmation", command = lambda : [increment_counter(),self.update()])
 		button2.pack(expand = 1, side = LEFT)
-		print(currRep)
 
 		repetitionLabel = tk.Label(self, text=("Repetition # " + str(currRep)))
 		repetitionLabel.pack(expand=True, fill='none', side = RIGHT)
-
 
 		button2 = ttk.Button(self, text ="Cancel", command = lambda : controller.show_frame(confirmationWindow))
 		button2.pack(expand = 1, side = RIGHT)
@@ -399,7 +341,6 @@ class fileConfiguration(tk.Frame):
 		label=ttk.Label(self, text ="File Configuration", font = LARGEFONT)
 		label.grid(row = 0, column = 1, padx = 10, pady = 10)
 
-		userinput = 2																							# TODO fix entry of repetitions
 		numRepsInput=tk.IntVar(None)
 		dirname=ttk.Entry(label,numRepsInput.get(),width=10)
 		dirname.grid(row=2,column=1)
@@ -408,7 +349,7 @@ class fileConfiguration(tk.Frame):
 		button3.grid(row = 2, column = 5, padx = 20, pady = 20)
 
 		tk.Label(self, text="Confirm system repetitions then click Continue").grid(row=3,column=1)
-		button4 = ttk.Button(self, text ="Continue", command = lambda : controller.show_frame(parameterTabs)) # param_tab(self,parent,controller,numReps))
+		button4 = ttk.Button(self, text ="Continue", command = lambda : controller.show_frame(parameterTabs))
 		button4.grid(row = 4, column = 1, padx = 20, pady = 20)
 
 #######################################################################################
@@ -417,6 +358,7 @@ class fileConfiguration(tk.Frame):
 # Driver Code
 app = tkinterApp()
 
+# set application icon
 my_path = os.path.abspath(os.path.dirname(__file__))
 icon = os.path.join(my_path, "img\WHOIropelogo2020_Black.ico")
 app.iconbitmap(icon)
