@@ -8,13 +8,8 @@ from tkinter import ttk
 from tkinter import LEFT,RIGHT
 from tkinter.messagebox import askyesno
 from tkinter.filedialog import asksaveasfile
-#import configFileGenerator as cfg
 import os.path
 from datetime import date
-
-numReps = 1
-configfile = ''
-
 
 LARGEFONT =("Verdana", 35)
 class tkinterApp(tk.Tk):
@@ -28,8 +23,8 @@ class tkinterApp(tk.Tk):
 		self.shared_data = {
 			"currRep" : 0,
 			"numReps" : 1,
-			"configfile" : '',
-			"param_array" : []
+			"configFile" : '',
+			"paramArray" : []
 		}
 
 		# creating a container
@@ -63,12 +58,12 @@ class tkinterApp(tk.Tk):
 #                                   Functions                                         #
 #######################################################################################
 
-def save_file():
-	global configfile
+def save_file(self):
 	#filepath = os.path.abspath(os.path.dirname(__file__))
-	filename = 'MS-SID_Automation_Configuration_' + date.today().strftime("%d-%m-%Y")
+	filename = 'MS-SID_Automation_Configuration_' + date.today().strftime("%Y-%m-%d")
 	configfile = asksaveasfile(initialfile = filename + '.cfg',
 		defaultextension=".cfg",filetypes=[("All Files","*.*"),("Text Documents","*.cfg")])
+	self.controller.shared_data["configFile"] = configfile
 
 def write_text(passed_string):
 	global configfile
@@ -83,9 +78,8 @@ def set_background_image(parent):
 	background_label = tk.Label(parent, image=background_image)
 	background_label.place(x=0, y=0, relwidth=1, relheight=1)
 
-def set_num_reps(value):
-	global numReps
-	numReps = value
+def set_num_reps(self,value):
+	self.controller.shared_data["numReps"] = value
 
 #######################################################################################
 #                                   Root Window                                       #
@@ -143,7 +137,7 @@ class createNewConfigFile(tk.Frame):
 		label=ttk.Label(self, text ="Create New Config File", font = LARGEFONT)
 		label.grid(row = 0, column = 1, padx = 10, pady = 10)
 
-		button4=ttk.Button(self, text ="Save File Location", command = lambda : save_file())
+		button4=ttk.Button(self, text ="Save File Location", command = lambda : save_file(self))
 		button4.grid(row = 1, column = 1, padx = 10, pady = 10)
 
 		tk.Label(self, text="Save as a .cfg file").grid(row=1,column=2)
@@ -346,7 +340,7 @@ class parameterTabs(tk.Frame):
 
 		parameterArray = [self.controller.shared_data["currRep"], chamberVolumeEntryTabOne.get(), sampleSizeEntryTabOne.get(), flushVolumeEntryTabTwo.get(), flushRepetitionsEntryTabTwo.get(),
 		injectorVolumeEntryTabThree.get(), sampleVolumeEntryTabThree.get(), sampleSizetimeEntryTabFour.get(), samplePortsEntryTabFour.get(), sampleWaitTimesEntryTabFour.get(), repetitionWaitTimesEntryTabFour.get()]
-		self.controller.shared_data["param_array"] = parameterArray
+		self.controller.shared_data["paramArray"] = parameterArray
 
 
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#
@@ -381,7 +375,7 @@ class fileConfiguration(tk.Frame):
 		dirname=ttk.Entry(label,numRepsInput.get(),width=10)
 		dirname.grid(row=2,column=1)
 
-		button3 = ttk.Button(self, text ="OK", command = lambda : set_num_reps(dirname.get()))
+		button3 = ttk.Button(self, text ="OK", command = lambda : set_num_reps(self,dirname.get()))
 		button3.grid(row = 2, column = 5, padx = 20, pady = 20)
 
 		tk.Label(self, text="Confirm system repetitions then click Continue").grid(row=3,column=1) #TODO check for valid entry, complain if not valid
