@@ -19,27 +19,8 @@
 import sys
 import os
 
-# coding=<encoding name>
-
 def int_check(parameter, min_value, max_value):
     valid_answer = False
-#    while not(valid_answer):
-#        try:
-#           #parameter = sys.argv[1,:]
-#            #number1 = input(parameter + ': ')
-#            number1 = input(': ')
-#            number1 = int(number1)
-#            #if number1 not in range(min_value,max_value):
-#            #    raise Exception("Enter a number between " + min_value + "and " + max_value)
-#            #if number1 not in isinstance(number1, int):
-#            if number1 < min_value or number1 > max_value:
-#                print("Input must be a number between " + str(min_value) + " and " + str(max_value)) #raise Exception
-#        except ValueError:
-#            print ("Enter a number between " + str(min_value) + " and " + str(max_value))
-#        else:
-#            valid_answer = True
-#            return number1
-#        break
     while not(valid_answer):
             number1 = input(': ')
             number1 = int(number1)
@@ -57,9 +38,6 @@ def int_check(parameter, min_value, max_value):
                 return number1
     
     
-    
-
-filepath = os.path.abspath(__file__)
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 filename = 'msconfig.cfg'
 iV_dft=2000 #default in mL
@@ -72,10 +50,7 @@ with open(filename, "w") as f:
     print("#####################################")
     print("Specify actual total incubator volume in mL")
     iV=int_check("iV", 0, 2000)
-    print(iV)
-    #iV=input(iV_dft)
-    f.write("iV:"+str(iV))
-    f.write("\r")
+    f.write("iV:"+str(iV)+"\r")
     print("Specify actual total injector volume in mL")
     tV=input(tV_dft)
     f.write("tV:"+tV)
