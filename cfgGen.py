@@ -29,6 +29,7 @@ flushWaittime_min = 5 #sec
 flushWaittime_max = 300 #sec
 flushAmount_min = 0 #mL
 flushAmount_max = 2000 #mL
+acceptable_chars = set('0123456789')
 
 
 import sys
@@ -38,12 +39,11 @@ def int_check(parameter, min_value, max_value):
     valid_answer = False
     while not(valid_answer):
             number1 = input(': ')
-            print(number1.isalpha())
-            if (number1.isalpha()) or (number1.find('!','~','@','#','$','%','^','&','*','(',')','-','_','=','+','|',']','}','[','{','"',':',';','?','/','>','.',',','<')):
-                 print('nah')
-                 continue
-            else:
-                number1 = int(number1)
+            #if not(number1 in acceptable_chars):
+            #     print('nah')
+            #     continue
+            #else:
+            number1 = int(number1)
             if (number1 < min_value) or (number1 > max_value):
                 print("Input must be a number between " + str(min_value) + " and " + str(max_value))
                 continue
