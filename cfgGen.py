@@ -2,6 +2,7 @@
 #put limits on input values
 #put error handling
 #create command to get start time
+#find some way to estimate runtime
 
 ####PARAMS
 #Sample volume amount
@@ -29,6 +30,19 @@ flushWaittime_min = 5 #sec
 flushWaittime_max = 300 #sec
 flushAmount_min = 0 #mL
 flushAmount_max = 2000 #mL
+## filtration ##
+filtrationTestCycles_min = 0
+filtrationTestCycles_max = 50
+filtrationTestIncubatorDrawVolume_min = 0 #mL
+filtrationTestIncubatorDrawVolume_max = 2000 #mL
+filtrationTestInjectorDrawVolume_min = 0 #mL
+filtrationTestInjectorDrawVolume_max = 2000 #mL
+filtrationTestWaitBetweenPorts_min = 0 #sec
+filtrationTestWaitBetweenPorts_max = 300 #sec
+filtrationTestWaitBetweenStudies_min = 0 #sec
+filtrationTestWaitBetweenStudies_max = 200000 #sec
+
+
 acceptable_chars = set('0123456789')
 
 
@@ -54,6 +68,15 @@ def int_check(parameter, min_value, max_value):
             else:
                 valid_answer = True
                 return number1
+            
+def init_cfg():
+    print("Specify actual total incubator volume in mL, range is between "+str(incubatorVolume_min)+" and "+str(incubatorVolume_max))
+    iV=int_check("iV", incubatorVolume_min, incubatorVolume_max)
+    f.write("iV:"+str(iV)+"\r")
+    print("Specify actual total injector volume in mL, range is between "+str(injectorVolume_min)+" and "+str(injectorVolume_max))
+    tV=int_check("tV", injectorVolume_min, injectorVolume_max)
+    f.write("tV:"+str(tV)+"\r")
+    print("TODO any more init cfg params")
             
 def flush():
     print("Specify flush cycles for incubator, range is between "+str(flushCycles_min)+" and "+str(flushCycles_max))
@@ -82,6 +105,10 @@ def flush():
     f.write("\r")
 
 def filtration():
+    print("Specify amount of filtration cycles to be completed, range is between "+str(filtrationTestCycles_min)+" and "+str(filtrationTestCycles_max))
+    filtration_test_cycles = int_check("flush_cycles", filtrationTestCycles_min, filtrationTestCycles_max)
+    f.write("#Filtration study")
+
          #filtration_test_cycles = input()
    # for 1:filtration_test_cycles
         ##incubation draw volume
@@ -101,21 +128,16 @@ iV_dft=2000 #default in mL
 tV_dft=250 #default in mL
 
 with open(filename, "w") as f:
+    print("#####################################")
     print("Initial configutation/first-time setup")
     print("#####################################")
-    print("Specify actual total incubator volume in mL, range is between "+str(incubatorVolume_min)+" and "+str(incubatorVolume_max))
-    iV=int_check("iV", incubatorVolume_min, incubatorVolume_max)
-    f.write("iV:"+str(iV)+"\r")
-    print("Specify actual total injector volume in mL, range is between "+str(injectorVolume_min)+" and "+str(injectorVolume_max))
-    tV=int_check("tV", injectorVolume_min, injectorVolume_max)
-    f.write("tV:"+str(tV)+"\r")
-    print("TODO any more init cfg params")
+    init_cfg()
     print(" ")
     print("#####################################")
     print("Incubator Pre-Flush Parameters")
     print("#####################################")
     flush()
-    
+    print(" ")
     print("#####################################")
     print("Filtration Test Parameters")
     print("#####################################")
