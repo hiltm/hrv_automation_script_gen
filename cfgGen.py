@@ -38,12 +38,15 @@ def int_check(parameter, min_value, max_value):
     valid_answer = False
     while not(valid_answer):
             number1 = input(': ')
-            number1 = int(number1)
+            print(number1.isalpha())
+            if (number1.isalpha()) or (number1.find('!','~','@','#','$','%','^','&','*','(',')','-','_','=','+','|',']','}','[','{','"',':',';','?','/','>','.',',','<')):
+                 print('nah')
+                 continue
+            else:
+                number1 = int(number1)
             if (number1 < min_value) or (number1 > max_value):
-                print("Input must be a number between " + str(min_value) + " and " + str(max_value)) #raise Exception
+                print("Input must be a number between " + str(min_value) + " and " + str(max_value))
                 continue
-            #if not(type(number1) == "int"):
-            #num_type = type(number1)
             if not(isinstance(number1,int)):
                 print(type(number1))
                 print("Enter a number")
@@ -77,6 +80,19 @@ def flush():
     f.write("\r")
     f.write("eRpn")                 # end loop
     f.write("\r")
+
+def filtration():
+         #filtration_test_cycles = input()
+   # for 1:filtration_test_cycles
+        ##incubation draw volume
+        ##injection draw volume
+        ##CMD pump incubation chamber to HRV
+        ##CMD pump HRV to filters
+        ##at TIMEZERO pump to 1-5 ports
+        ##wait adjustable time
+        ##pump to next port
+        ##repeat for up to 24 hours
+    print('filler')
     
     
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
@@ -85,8 +101,6 @@ iV_dft=2000 #default in mL
 tV_dft=250 #default in mL
 
 with open(filename, "w") as f:
-#while True:
-#try:
     print("Initial configutation/first-time setup")
     print("#####################################")
     print("Specify actual total incubator volume in mL, range is between "+str(incubatorVolume_min)+" and "+str(incubatorVolume_max))
@@ -106,18 +120,5 @@ with open(filename, "w") as f:
     print("Filtration Test Parameters")
     print("#####################################")
     print("Specify total amount of filtration test cycles")
-    #filtration_test_cycles = input()
-   # for 1:filtration_test_cycles
-        ##incubation draw volume
-        ##injection draw volume
-        ##CMD pump incubation chamber to HRV
-        ##CMD pump HRV to filters
-        ##at TIMEZERO pump to 1-5 ports
-        ##wait adjustable time
-        ##pump to next port
-        ##repeat for up to 24 hours
 
     f.close()
-    
-#except EOFError:
-#break
