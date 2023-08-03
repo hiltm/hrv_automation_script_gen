@@ -16,6 +16,9 @@
 #TIMEONE time between ports
 #Number of incubation studies to be ran
 
+#### PARAMETER LIMITS ####
+
+
 import sys
 import os
 
@@ -60,11 +63,11 @@ with open(filename, "w") as f:
     print("Incubator Pre-Flush Parameters")
     print("#####################################")
     print("Specify flush cycles for incubator")
-    flush_cycles = input()
-    print("Specify wait time between flush cycles, min. 5 seconds")
-    flush_waittime = input()
+    flush_cycles = int_check("flush_cycles", 0, 5)
+    print("Specify wait time in seconds between flush cycles, min. 5 seconds")
+    flush_waittime = int_check("flush_waittime", 5, 300)
     print("Specify flush amount in mL")
-    flush_amount = input()
+    flush_amount = int_check("flush_amount", 5, 300)
     def flush():
         f.write("#Incubator pre-flush")
         f.write("\r")
