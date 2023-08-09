@@ -103,8 +103,6 @@ def incubation():
     
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 filename = 'msconfig.cfg'
-iV_dft=2000 #default in mL
-tV_dft=250 #default in mL
 
 with open(filename, "w") as f:
     print("#####################################")
