@@ -79,14 +79,14 @@ def yes_or_no():
     user_input = input('yes or no: ')
     if user_input.lower() == 'yes':
         print('user typed yes')
-        pre_divided = True
+        var = True
     elif user_input.lower() == 'no':
         print('user typed no')
-        pre_divided = False
+        var = False
     else:
         print('Type yes or no')
-        pre_divided = False
-    return pre_divided
+        var = False
+    return var
             
 def init_cfg():
     now = datetime.now()
@@ -153,15 +153,21 @@ def incubation():
     sample_cycles = int_check("flush_cycles", params.incubationTestSampleCycles_min, params.incubationTestSampleCycles_max, params.incubationTestSampleCycles_dft)
 
     print("Would you like to divide the sample volume evenly between the "+str(sample_cycles)+" samples? If not you will be prompted to specify individual sample volumes for each port.")
-    divided_evenly = yes_or_no()
+    volume_divided_evenly = yes_or_no()
+
+    print("Would you like to wait the same amount of time in seconds between the "+str(sample_cycles)+" samples? If not you will be prompted to specify individual wait times for each sample.")
+    time_divided_evenly = yes_or_no()
+    if time_divided_evenly:
+        print("Specify the time in seconds to wait between the "+str(sample_cycles)+" samples, range is between "+str(params.incubationTestWaitBetweenStudies_min)+" and "+str(params.incubationTestWaitBetweenStudies_max)+". Default is "+str(params.incubationTestWaitBetweenStudies_dft))
+        time_between_studies = int_check("flush_cycles", params.incubationTestWaitBetweenStudies_min, params.incubationTestWaitBetweenStudies_max, params.incubationTestWaitBetweenStudies_dft)
 
     ports = port_selection(sample_cycles)
     for x in range(sample_cycles):
-        f.write("#Sample cycle "+str(x))
+        f.write("#Sample cycle "+str(x+1))
         f.write("\r")
         f.write("pO:"+str(ports[x]))    #go to PORT X
         f.write("\r")
-        if divided_evenly:
+        if volume_divided_evenly:
             incubationTestSsampleVolume = intake / sample_cycles
             f.write("eV:"+str(incubationTestSsampleVolume))
             f.write("\r")
@@ -170,6 +176,15 @@ def incubation():
             incubationTestSsampleVolume = int_check("flush_cycles", params.incubationTestSsampleVolume_min, params.incubationTestSsampleVolume_max, params.incubationTestSsampleVolume_dft)
             f.write("eV:"+str(incubationTestSsampleVolume))
             f.write("\r")
+        if time_divided_evenly:
+            f.write("wS:"+str(time_between_studies))
+            f.write("\r")
+        else:
+            print("Specify the time in seconds to wait after "+str(ports[x])+", range is between "+str(params.incubationTestSsampleVolume_min)+" and "+str(params.incubationTestSsampleVolume_max)+". Default is "+str(params.incubationTestSsampleVolume_dft))
+            incubationTestSsampleWaitTime = int_check("flush_cycles", params.incubationTestSsampleVolume_min, params.incubationTestSsampleVolume_max, params.incubationTestSsampleVolume_dft)
+            f.write("wS:"+str(incubationTestSsampleWaitTime))
+            f.write("\r")
+        
         
         
 
