@@ -18,6 +18,7 @@
 #Number of incubation studies to be ran
 
 import params
+from datetime import datetime
 
 acceptable_chars = set('0123456789')
 
@@ -46,6 +47,10 @@ def int_check(parameter, min_value, max_value, dft_value):
                 return number1
             
 def init_cfg():
+    now = datetime.now()
+    dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+    f.write("#"+dt_string)
+    f.write("\r")
     print("Specify actual total incubator volume in mL, range is between "+str(params.incubatorVolume_min)+" and "+str(params.incubatorVolume_max)+". Default is "+str(params.incubatorVolume_dft))
     iV=int_check("iV", params.incubatorVolume_min, params.incubatorVolume_max, params.incubatorVolume_dft)
     f.write("iV:"+str(iV)+"\r")
@@ -100,10 +105,11 @@ def incubation():
         ##repeat for up to 24 hours
     print('filler')
     
-    
+#file generation   
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 filename = 'msconfig.cfg'
 
+#main calls
 with open(filename, "w") as f:
     print("#####################################")
     print("Initial configutation/first-time setup")
