@@ -46,20 +46,20 @@ def int_check(parameter, min_value, max_value, dft_value):
                 return number1
             
 def init_cfg():
-    print("Specify actual total incubator volume in mL, range is between "+str(params.incubatorVolume_min)+" and "+str(params.incubatorVolume_max))
+    print("Specify actual total incubator volume in mL, range is between "+str(params.incubatorVolume_min)+" and "+str(params.incubatorVolume_max)+". Default is "+str(params.incubatorVolume_dft))
     iV=int_check("iV", params.incubatorVolume_min, params.incubatorVolume_max, params.incubatorVolume_dft)
     f.write("iV:"+str(iV)+"\r")
-    print("Specify actual total injector volume in mL, range is between "+str(params.injectorVolume_min)+" and "+str(params.injectorVolume_max))
+    print("Specify actual total injector volume in mL, range is between "+str(params.injectorVolume_min)+" and "+str(params.injectorVolume_max)+". Default is "+str(params.injectorVolume_dft))
     tV=int_check("tV", params.injectorVolume_min, params.injectorVolume_max, params.injectorVolume_dft)
     f.write("tV:"+str(tV)+"\r")
     print("TODO any more init cfg params")
             
 def flush():
-    print("Specify flush cycles for incubator, range is between "+str(params.flushCycles_min)+" and "+str(params.flushCycles_max))
+    print("Specify flush cycles for incubator, range is between "+str(params.flushCycles_min)+" and "+str(params.flushCycles_max)+". Default is "+str(params.flushCycles_dft))
     flush_cycles = int_check("flush_cycles", params.flushCycles_min, params.flushCycles_max, params.flushCycles_dft)
-    print("Specify wait time in seconds between flush cycles, range is between "+str(params.flushWaittime_min)+" and "+str(params.flushWaittime_max))
+    print("Specify wait time in seconds between flush cycles, range is between "+str(params.flushWaittime_min)+" and "+str(params.flushWaittime_max)+". Default is "+str(params.flushWaittime_dft))
     flush_waittime = int_check("flush_waittime", params.flushWaittime_min, params.flushWaittime_max, params.flushWaittime_dft)
-    print("Specify flush amount in mL, range is between "+str(params.flushAmount_min)+" and "+str(params.flushAmount_max))
+    print("Specify flush amount in mL, range is between "+str(params.flushAmount_min)+" and "+str(params.flushAmount_max)+". Default is "+str(params.flushAmount_dft))
     flush_amount = int_check("flush_amount", params.flushAmount_min, params.flushAmount_max, params.flushAmount_dft)
     f.write("#Incubator pre-flush")
     f.write("\r")
@@ -81,7 +81,7 @@ def flush():
     f.write("\r")
 
 def filtration():
-    print("Specify amount of filtration cycles to be completed, range is between "+str(params.filtrationTestCycles_min)+" and "+str(params.filtrationTestCycles_max))
+    print("Specify amount of filtration cycles to be completed, range is between "+str(params.filtrationTestCycles_min)+" and "+str(params.filtrationTestCycles_max)+". Default is "+str(params.filtrationTestCycles_dft))
     filtration_test_cycles = int_check("flush_cycles", params.filtrationTestCycles_min, params.filtrationTestCycles_max, params.filtrationTestCycles_dft)
     f.write("#Filtration study")
 
