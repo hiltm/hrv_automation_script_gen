@@ -55,30 +55,33 @@ def init_cfg():
     print("TODO any more init cfg params")
             
 def flush():
-    print("Specify flush cycles for incubator, range is between "+str(params.flushCycles_min)+" and "+str(params.flushCycles_max)+". Default is "+str(params.flushCycles_dft))
-    flush_cycles = int_check("flush_cycles", params.flushCycles_min, params.flushCycles_max, params.flushCycles_dft)
-    print("Specify wait time in seconds between flush cycles, range is between "+str(params.flushWaittime_min)+" and "+str(params.flushWaittime_max)+". Default is "+str(params.flushWaittime_dft))
-    flush_waittime = int_check("flush_waittime", params.flushWaittime_min, params.flushWaittime_max, params.flushWaittime_dft)
-    print("Specify flush amount in mL, range is between "+str(params.flushAmount_min)+" and "+str(params.flushAmount_max)+". Default is "+str(params.flushAmount_dft))
-    flush_amount = int_check("flush_amount", params.flushAmount_min, params.flushAmount_max, params.flushAmount_dft)
     f.write("#Incubator pre-flush")
     f.write("\r")
-    f.write("wHp")          #wait for home port
+    print("Specify flush cycles for incubator, range is between "+str(params.flushCycles_min)+" and "+str(params.flushCycles_max)+". Default is "+str(params.flushCycles_dft))
+    flush_cycles = int_check("flush_cycles", params.flushCycles_min, params.flushCycles_max, params.flushCycles_dft)
+    f.write("rP:"+str(flush_cycles))   #repeat for flush_cycles times
     f.write("\r")
-    f.write("gSp")          #get a prompt from the SID
-    f.write("\r")
-    f.write("eP")           #completely empty incubator
-    f.write("\r")
-    f.write("rP:"+str(flush_cycles))    #loop flush_cycles times
-    f.write("\r")
-    f.write("fV:"+str(flush_amount))     #flush amount
-    f.write("\r")
-    f.write("wS:"+str(flush_waittime))   #wait for flush_waittime seconds
-    f.write("\r")
-    f.write("eP")                   # completely empty incubator
-    f.write("\r")
-    f.write("eRpn")                 # end loop
-    f.write("\r")
+    for x in range(flush_cycles):
+        print("Specify wait time in seconds between flush cycles for flush cycle "+str(x)+", range is between "+str(params.flushWaittime_min)+" and "+str(params.flushWaittime_max)+". Default is "+str(params.flushWaittime_dft))
+        flush_waittime = int_check("flush_waittime", params.flushWaittime_min, params.flushWaittime_max, params.flushWaittime_dft)
+        print("Specify flush amount in mL, range is between "+str(params.flushAmount_min)+" and "+str(params.flushAmount_max)+". Default is "+str(params.flushAmount_dft))
+        flush_amount = int_check("flush_amount", params.flushAmount_min, params.flushAmount_max, params.flushAmount_dft)
+        f.write("wHp")          #wait for home port
+        f.write("\r")
+        f.write("gSp")          #get a prompt from the SID
+        f.write("\r")
+        f.write("eP")           #completely empty incubator
+        f.write("\r")
+        f.write("rP:"+str(flush_cycles))    #loop flush_cycles times
+        f.write("\r")
+        f.write("fV:"+str(flush_amount))     #flush amount
+        f.write("\r")
+        f.write("wS:"+str(flush_waittime))   #wait for flush_waittime seconds
+        f.write("\r")
+        f.write("eP")                   # completely empty incubator
+        f.write("\r")
+        f.write("eRpn")                 # end loop
+        f.write("\r")
 
 def incubation():
     print("Specify amount of incubation cycles to be completed, range is between "+str(params.incubationTestCycles_min)+" and "+str(params.incubationTestCycles_max)+". Default is "+str(params.incubationTestCycles_dft))
