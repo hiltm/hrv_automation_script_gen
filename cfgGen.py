@@ -73,6 +73,20 @@ def set_intake(x):
 
 def get_intake():
      return intake
+
+def yes_or_no():
+    # TODO beef this function up for error checking and accepting just y or n
+    user_input = input('yes or no: ')
+    if user_input.lower() == 'yes':
+        print('user typed yes')
+        pre_divided = True
+    elif user_input.lower() == 'no':
+        print('user typed no')
+        pre_divided = False
+    else:
+        print('Type yes or no')
+        pre_divided = False
+    return pre_divided
             
 def init_cfg():
     now = datetime.now()
@@ -134,15 +148,31 @@ def incubation():
     incubation_test_injector_volume = int_check("flush_cycles", params.incubationTestInjectorDrawVolume_min, params.incubationTestInjectorDrawVolume_max, params.incubationTestInjectorDrawVolume_dft)
     f.write("iT:"+str(incubation_test_injector_volume))
     f.write("\r")
-    f.write("#TODO verify cmd exists for pump incubation chamber to HRV\r")#TODO
+    #f.write("#TODO verify cmd exists for pump incubation chamber to HRV\r")#TODO
     print("Specify amount of incubation sample cycles to be completed, range is between "+str(params.incubationTestSampleCycles_min)+" and "+str(params.incubationTestSampleCycles_max)+". Default is "+str(params.incubationTestSampleCycles_dft))
     sample_cycles = int_check("flush_cycles", params.incubationTestSampleCycles_min, params.incubationTestSampleCycles_max, params.incubationTestSampleCycles_dft)
+
+    print("Would you like to divide the sample volume evenly between the "+str(sample_cycles)+" samples? If not you will be prompted to specify individual sample volumes for each port.")
+    divided_evenly = yes_or_no()
+
     ports = port_selection(sample_cycles)
     for x in range(sample_cycles):
         f.write("#Sample cycle "+str(x))
         f.write("\r")
         f.write("pO:"+str(ports[x]))    #go to PORT X
         f.write("\r")
+        if divided_evenly:
+            incubationTestSsampleVolume = intake / sample_cycles
+            f.write("eV:"+str(incubationTestSsampleVolume))
+            f.write("\r")
+        else:
+            print("Specify amount of sample volume to pump through PORT  "+str(ports[x])+" ,range is between "+str(params.incubationTestSsampleVolume_min)+" and "+str(params.incubationTestSsampleVolume_max)+". Default is "+str(params.incubationTestSsampleVolume_dft))
+            incubationTestSsampleVolume = int_check("flush_cycles", params.incubationTestSsampleVolume_min, params.incubationTestSsampleVolume_max, params.incubationTestSsampleVolume_dft)
+            f.write("eV:"+str(incubationTestSsampleVolume))
+            f.write("\r")
+        
+        
+
 
     
 #file generation   

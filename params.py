@@ -35,3 +35,7 @@ incubationTestWaitBetweenStudies_dft = 100 #sec
 incubationTestWaitValvePorts_min = 0 #sec
 incubationTestValvePorts = [] #
 incubationTestWaitBetweenStudies_dft = ["1" "2" "3"]
+incubationTestSsampleVolume = 0 #mL
+incubationTestSsampleVolume_min = 0 #mL
+incubationTestSsampleVolume_max = 500 #mL
+incubationTestSsampleVolume_dft = 500 #mL
