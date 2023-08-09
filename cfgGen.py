@@ -21,6 +21,7 @@ import params
 from datetime import datetime
 
 acceptable_chars = set('0123456789')
+intake = 0
 
 
 import sys
@@ -53,6 +54,7 @@ def init_cfg():
     f.write("\r")
     print("Specify actual total incubator volume in mL, range is between "+str(params.incubatorVolume_min)+" and "+str(params.incubatorVolume_max)+". Default is "+str(params.incubatorVolume_dft))
     iV=int_check("iV", params.incubatorVolume_min, params.incubatorVolume_max, params.incubatorVolume_dft)
+    intake = iV # setting global to track intake volume
     f.write("iV:"+str(iV)+"\r")
     print("Specify actual total injector volume in mL, range is between "+str(params.injectorVolume_min)+" and "+str(params.injectorVolume_max)+". Default is "+str(params.injectorVolume_dft))
     tV=int_check("tV", params.injectorVolume_min, params.injectorVolume_max, params.injectorVolume_dft)
@@ -91,10 +93,22 @@ def flush():
         f.write("\r")
 
 def incubation():
+    f.write("#incubation study")
+    f.write("\r")
+    print("The incubator chamber will be filled to the total incubator volume")
+    f.write("fV:"+intake) # fill incubator chamber to total incubator volume
+    f.write("\r")
+    print("Specify amount of incubation chamber volume to be used during incubation study, range is between "+str(params.incubationTestIncubatorDrawVolume_min)+" and "
+          +str(params.incubationTestIncubatorDrawVolume_max)+". Default is "+str(params.incubationTestIncubatorDrawVolume_dft)+". This number will be referred to as the OUTTAKE.")
+    intake = int_check("flush_cycles", params.incubationTestIncubatorDrawVolume_min, params.incubationTestIncubatorDrawVolume_max, params.incubationTestIncubatorDrawVolume_dft)
+    print("Specify amount of incubation chamber volume to be used during incubation study, range is between "+str(params.incubationTestInjectorDrawVolume_min)+" and "
+          +str(params.incubationTestInjectorDrawVolume_max)+". Default is "+str(params.incubationTestInjectorDrawVolume_dft))
+    incubation_test_injector_volume = int_check("flush_cycles", params.incubationTestInjectorDrawVolume_min, params.incubationTestInjectorDrawVolume_max, params.incubationTestInjectorDrawVolume_dft)
+    f.write("iT:"+str(incubation_test_injector_volume))
+    f.write("\r")
+    f.write("#TODO verify cmd exists for pump incubation chamber to HRV")
     print("Specify amount of incubation cycles to be completed, range is between "+str(params.incubationTestCycles_min)+" and "+str(params.incubationTestCycles_max)+". Default is "+str(params.incubationTestCycles_dft))
     incubation_test_cycles = int_check("flush_cycles", params.incubationTestCycles_min, params.incubationTestCycles_max, params.incubationTestCycles_dft)
-    f.write("#incubation study")
-
          #incubation_test_cycles = input()
    # for 1:incubation_test_cycles
         ##incubation draw volume
@@ -126,6 +140,7 @@ with open(filename, "w") as f:
     print("#####################################")
     print("incubation Test Parameters")
     print("#####################################")
-    print("Specify total amount of incubation test cycles")
+    incubation()
+    print(" ")
 
     f.close()
