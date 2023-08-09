@@ -169,31 +169,31 @@ def incubation():
         f.write("\r")
         if volume_divided_evenly:
             incubationTestSsampleVolume = intake / sample_cycles
-            f.write("eV:"+str(incubationTestSsampleVolume))
+            f.write("eV:"+str(incubationTestSsampleVolume))         #sample volume
             f.write("\r")
         else:
             print("Specify amount of sample volume to pump through PORT  "+str(ports[x])+" ,range is between "+str(params.incubationTestSsampleVolume_min)+" and "+str(params.incubationTestSsampleVolume_max)+". Default is "+str(params.incubationTestSsampleVolume_dft))
             incubationTestSsampleVolume = int_check("flush_cycles", params.incubationTestSsampleVolume_min, params.incubationTestSsampleVolume_max, params.incubationTestSsampleVolume_dft)
-            f.write("eV:"+str(incubationTestSsampleVolume))
+            f.write("eV:"+str(incubationTestSsampleVolume))         #sample volume
             f.write("\r")
         if time_divided_evenly:
-            f.write("wS:"+str(time_between_studies))
+            f.write("wS:"+str(time_between_studies))                #wait for X seconds
             f.write("\r")
         else:
             print("Specify the time in seconds to wait after "+str(ports[x])+", range is between "+str(params.incubationTestSsampleVolume_min)+" and "+str(params.incubationTestSsampleVolume_max)+". Default is "+str(params.incubationTestSsampleVolume_dft))
             incubationTestSsampleWaitTime = int_check("flush_cycles", params.incubationTestSsampleVolume_min, params.incubationTestSsampleVolume_max, params.incubationTestSsampleVolume_dft)
-            f.write("wS:"+str(incubationTestSsampleWaitTime))
+            f.write("wS:"+str(incubationTestSsampleWaitTime))       #wait for X seconds
             f.write("\r")
         
         
 def wait_for_next_study():
     print("Specify how long to wait until the start of the next study. This can be a long time. Range is between "+str(params.studyCycleWaitTime_min)+" and "+str(params.studyCycleWaitTime_max)+". Default is "+str(params.studyCycleWaitTime_dft))
     study_cycle_wait_time=int_check("study_cycle_wait_time", params.studyCycleWaitTime_min, params.studyCycleWaitTime_max, params.studyCycleWaitTime_dft)
-    f.write("wHp")                      #wait for home port
+    f.write("wHp")                              #wait for home port
     f.write("\r")
-    f.write("eP")                       #completely empty incubator
+    f.write("eP")                                #completely empty incubator
     f.write("\r")
-    f.write("wA:"+str(study_cycle_wait_time))
+    f.write("wA:"+str(study_cycle_wait_time))    #wait for X minutes
     f.write("\r")
 
 
