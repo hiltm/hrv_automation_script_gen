@@ -17,22 +17,17 @@
 #TIMEONE time between ports
 #Number of incubation studies to be ran
 
+import os
 import params
 from datetime import datetime
 
 acceptable_chars = set('0123456789')
 
-import sys
-import os
 
 def int_check(parameter, min_value, max_value, dft_value):
     valid_answer = False
     while not(valid_answer):
             number1 = input(': ') or dft_value
-            #if not(number1 in acceptable_chars):
-            #     print('nah')
-            #     continue
-            #else:
             number1 = int(number1)
             if (number1 < min_value) or (number1 > max_value):
                 print("Input must be a number between " + str(min_value) + " and " + str(max_value))
