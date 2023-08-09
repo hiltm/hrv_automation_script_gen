@@ -26,6 +26,35 @@ def int_check(parameter, min_value, max_value, dft_value):
                 valid_answer = True
                 return number1
             
+def port_selection():
+    min_value = 2
+    max_value = 98
+    ports = []
+    final_port = False
+
+    print("Select port positions for this sample. Even ports only for an incubation study. PORT0 is HOME. PORT98 is last available port.")
+    print("=====================================")
+    num_ports = int(input("Enter number of ports collecting samples for this study : "))
+    
+    for i in range(1, num_ports):
+        while not(final_port):
+            port_selection = input("Enter port number for sample "+str(i)+": ")
+            port_selection = int(port_selection)
+            if (port_selection < min_value) or (port_selection > max_value):
+                print("Input must be a number between " + str(min_value) + " and " + str(max_value))
+                continue
+            if not(isinstance(port_selection,int)):
+                print(type(port_selection))
+                print("Enter a number")
+                continue
+            else:
+                if i == num_ports:
+                    final_port = True # at the final port selection, exit loop
+                else:
+                    i = i + 1 # go to next port selection
+                ports.append(port_selection) # add port to array for this study
+    print(ports)
+            
 def set_intake(x):
      global intake
      intake = x
@@ -55,7 +84,7 @@ def flush():
     f.write("rP:"+str(flush_cycles))        #repeat for flush_cycles times
     f.write("\r")
     for x in range(flush_cycles):
-        f.write("#Flush cycle "+str(x))
+        f.write("#Flush cycle "+str(x+1))
         f.write("\r")
         print("Specify wait time in seconds between flush cycles for flush cycle "+str(x)+", range is between "+str(params.flushWaittime_min)+" and "+str(params.flushWaittime_max)+". Default is "+str(params.flushWaittime_dft))
         flush_waittime = int_check("flush_waittime", params.flushWaittime_min, params.flushWaittime_max, params.flushWaittime_dft)
@@ -99,7 +128,7 @@ def incubation():
         f.write("#Sample cycle "+str(x))
         f.write("\r")
         ###########TODO port selection command
-
+        port_selection()
     print('filler')
     
 #file generation   
