@@ -80,13 +80,13 @@ def flush():
     f.write("eRpn")                 # end loop
     f.write("\r")
 
-def filtration():
-    print("Specify amount of filtration cycles to be completed, range is between "+str(params.filtrationTestCycles_min)+" and "+str(params.filtrationTestCycles_max)+". Default is "+str(params.filtrationTestCycles_dft))
-    filtration_test_cycles = int_check("flush_cycles", params.filtrationTestCycles_min, params.filtrationTestCycles_max, params.filtrationTestCycles_dft)
-    f.write("#Filtration study")
+def incubation():
+    print("Specify amount of incubation cycles to be completed, range is between "+str(params.incubationTestCycles_min)+" and "+str(params.incubationTestCycles_max)+". Default is "+str(params.incubationTestCycles_dft))
+    incubation_test_cycles = int_check("flush_cycles", params.incubationTestCycles_min, params.incubationTestCycles_max, params.incubationTestCycles_dft)
+    f.write("#incubation study")
 
-         #filtration_test_cycles = input()
-   # for 1:filtration_test_cycles
+         #incubation_test_cycles = input()
+   # for 1:incubation_test_cycles
         ##incubation draw volume
         ##injection draw volume
         ##CMD pump incubation chamber to HRV
@@ -115,8 +115,8 @@ with open(filename, "w") as f:
     flush()
     print(" ")
     print("#####################################")
-    print("Filtration Test Parameters")
+    print("incubation Test Parameters")
     print("#####################################")
-    print("Specify total amount of filtration test cycles")
+    print("Specify total amount of incubation test cycles")
 
     f.close()
