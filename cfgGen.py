@@ -100,7 +100,7 @@ def init_cfg():
     print("Specify actual total injector volume in mL, range is between "+str(params.injectorVolume_min)+" and "+str(params.injectorVolume_max)+". Default is "+str(params.injectorVolume_dft))
     tV=int_check("tV", params.injectorVolume_min, params.injectorVolume_max, params.injectorVolume_dft)
     f.write("tV:"+str(tV)+"\r")
-    print("TODO any more init cfg params")
+    print("TODO any more init cfg params")#TODO
             
 def flush():
     f.write("#Incubator pre-flush")
@@ -186,7 +186,15 @@ def incubation():
             f.write("\r")
         
         
-        
+def wait_for_next_study():
+    print("Specify how long to wait until the start of the next study. This can be a long time. Range is between "+str(params.studyCycleWaitTime_min)+" and "+str(params.studyCycleWaitTime_max)+". Default is "+str(params.studyCycleWaitTime_dft))
+    study_cycle_wait_time=int_check("study_cycle_wait_time", params.studyCycleWaitTime_min, params.studyCycleWaitTime_max, params.studyCycleWaitTime_dft)
+    f.write("wHp")                      #wait for home port
+    f.write("\r")
+    f.write("eP")                       #completely empty incubator
+    f.write("\r")
+    f.write("wA:"+str(study_cycle_wait_time))
+    f.write("\r")
 
 
     
@@ -200,16 +208,27 @@ with open(filename, "w") as f:
     print("Initial configutation/first-time setup")
     print("#####################################")
     init_cfg()
-    print(" ")
-    print("#####################################")
-    print("Incubator Pre-Flush Parameters")
-    print("#####################################")
-    flush()
-    print(" ")
-    print("#####################################")
-    print("incubation Test Parameters")
-    print("#####################################")
-    incubation()
-    print(" ")
+    print("Specify amount of study cycles will be ran, range is between "+str(params.studyCycles_min)+" and "+str(params.studyCycles_max)+". Default is "+str(params.studyCycles_dft))
+    study_cycles = int_check("flush_cycles", params.studyCycles_min, params.studyCycles_max, params.studyCycles_dft)
+    for x in range(study_cycles):
+        #TODO function for reading if chamber is empty
+        f.write("#STUDY CYCLE 1\r")
+        print(" ")
+        print("#####################################")
+        print("Incubator Pre-Flush Parameters")
+        print("#####################################")
+        flush()
+        print(" ")
+        print("#####################################")
+        print("Incubation Test Parameters")
+        print("#####################################")
+        incubation()
+        print(" ")
+        print("#####################################")
+        print("Between Study Parameters")
+        print("#####################################")
+        wait_for_next_study()
+        print(" ")
+
 
     f.close()
