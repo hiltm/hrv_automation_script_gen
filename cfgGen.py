@@ -26,7 +26,7 @@ def int_check(parameter, min_value, max_value, dft_value):
                 valid_answer = True
                 return number1
             
-def port_selection():
+def port_selection(sample_cycles):
     min_value = 2
     max_value = 98
     ports = []
@@ -34,8 +34,13 @@ def port_selection():
 
     print("Select port positions for this sample. Even ports only for an incubation study. PORT0 is HOME. PORT98 is last available port.")
     print("=====================================")
-    num_ports = int(input("Enter number of ports collecting samples for this study : "))
+    #num_ports = int(input("Enter number of ports collecting samples for this study : "))
+    num_ports = sample_cycles
     
+    # TODO put in handling for if only 1 sample cycle specified
+    #if num_ports == 1:
+    #    num_ports = num_ports + 1
+
     for i in range(1, num_ports):
         while not(final_port):
             port_selection = input("Enter port number for sample "+str(i)+": ")
@@ -49,12 +54,18 @@ def port_selection():
                 print("Input must be a number between " + str(min_value) + " and " + str(max_value))
                 continue
             else:
+                ports.append(port_selection) # add port to array for this study
                 if i == num_ports:
                     final_port = True # at the final port selection, exit loop
+                    break
                 else:
                     i = i + 1 # go to next port selection
-                ports.append(port_selection) # add port to array for this study
-    print(ports)
+
+    if len(ports)==0:
+        print("!!!!!!!!!! No ports specified. Defaulting to PORT 0")
+        print("DELETEME this is currently happening if 1 sample cycle specified TODO to better handle this")
+        ports.append(0) # default to PORT 0 if no ports specified 
+    return ports
             
 def set_intake(x):
      global intake
@@ -109,6 +120,7 @@ def flush():
         f.write("\r")
 
 def incubation():
+    ports = []
     f.write("#incubation study")
     f.write("\r")
     print("The incubator chamber will be filled to the total incubator volume")
@@ -122,15 +134,16 @@ def incubation():
     incubation_test_injector_volume = int_check("flush_cycles", params.incubationTestInjectorDrawVolume_min, params.incubationTestInjectorDrawVolume_max, params.incubationTestInjectorDrawVolume_dft)
     f.write("iT:"+str(incubation_test_injector_volume))
     f.write("\r")
-    f.write("#TODO verify cmd exists for pump incubation chamber to HRV")
+    f.write("#TODO verify cmd exists for pump incubation chamber to HRV\r")#TODO
     print("Specify amount of incubation sample cycles to be completed, range is between "+str(params.incubationTestSampleCycles_min)+" and "+str(params.incubationTestSampleCycles_max)+". Default is "+str(params.incubationTestSampleCycles_dft))
     sample_cycles = int_check("flush_cycles", params.incubationTestSampleCycles_min, params.incubationTestSampleCycles_max, params.incubationTestSampleCycles_dft)
+    ports = port_selection(sample_cycles)
     for x in range(sample_cycles):
         f.write("#Sample cycle "+str(x))
         f.write("\r")
-        ###########TODO port selection command
-        port_selection()
-    print('filler')
+        f.write("pO:"+str(ports[x]))    #go to PORT X
+        f.write("\r")
+
     
 #file generation   
 os.chdir(os.path.dirname(os.path.abspath(__file__)))

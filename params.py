@@ -19,7 +19,7 @@ flushAmount_dft = 2000 #mL
 ## incubation ##
 incubationTestSampleCycles_min = 0
 incubationTestSampleCycles_max = 50
-incubationTestSampleCycles_dft = 10
+incubationTestSampleCycles_dft = 1
 incubationTestIncubatorDrawVolume_min = 0 #mL
 incubationTestIncubatorDrawVolume_max = 2000 #mL
 incubationTestIncubatorDrawVolume_dft = 1000 #mL
