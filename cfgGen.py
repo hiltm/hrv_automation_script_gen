@@ -67,6 +67,8 @@ def flush():
     f.write("rP:"+str(flush_cycles))   #repeat for flush_cycles times
     f.write("\r")
     for x in range(flush_cycles):
+        f.write("#Flush cycle "+str(x))
+        f.write("\r")
         print("Specify wait time in seconds between flush cycles for flush cycle "+str(x)+", range is between "+str(params.flushWaittime_min)+" and "+str(params.flushWaittime_max)+". Default is "+str(params.flushWaittime_dft))
         flush_waittime = int_check("flush_waittime", params.flushWaittime_min, params.flushWaittime_max, params.flushWaittime_dft)
         print("Specify flush amount in mL, range is between "+str(params.flushAmount_min)+" and "+str(params.flushAmount_max)+". Default is "+str(params.flushAmount_dft))
