@@ -39,13 +39,14 @@ def port_selection():
     for i in range(1, num_ports):
         while not(final_port):
             port_selection = input("Enter port number for sample "+str(i)+": ")
-            port_selection = int(port_selection)
+            try:
+                port_selection = int(port_selection)
+            except:
+                print("Integers only. No characters or letters allowed.")
+                continue
+
             if (port_selection < min_value) or (port_selection > max_value):
                 print("Input must be a number between " + str(min_value) + " and " + str(max_value))
-                continue
-            if not(isinstance(port_selection,int)):
-                print(type(port_selection))
-                print("Enter a number")
                 continue
             else:
                 if i == num_ports:
