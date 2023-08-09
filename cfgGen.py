@@ -1,5 +1,5 @@
 ###TODOS#######
-#check if using injector or not; this will have different commands sent to the PIC
+#check if using injector or not; this will have different commands sent to the PIC TODO
 #create command to get start time
 #find some way to estimate runtime
 
@@ -63,7 +63,7 @@ def port_selection(sample_cycles):
 
     if len(ports)==0:
         print("!!!!!!!!!! No ports specified. Defaulting to PORT 0")
-        print("DELETEME this is currently happening if 1 sample cycle specified TODO to better handle this")
+        print("DELETEME this is currently happening if 1 sample cycle specified TODO to better handle this") #TODO
         ports.append(0) # default to PORT 0 if no ports specified 
     return ports
             
