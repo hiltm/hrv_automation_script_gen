@@ -36,35 +36,43 @@ def port_selection(sample_cycles):
     print("=====================================")
     #num_ports = int(input("Enter number of ports collecting samples for this study : "))
     num_ports = sample_cycles
-    
-    # TODO put in handling for if only 1 sample cycle specified
-    #if num_ports == 1:
-    #    num_ports = num_ports + 1
 
-    for i in range(1, num_ports):
+    if num_ports == 1: #handling for only one sample cycle specified
         while not(final_port):
-            port_selection = input("Enter port number for sample "+str(i)+": ")
+            port_selection = input("Enter port number for sample 1 : ")
             try:
                 port_selection = int(port_selection)
             except:
                 print("Integers only. No characters or letters allowed.")
                 continue
-
             if (port_selection < min_value) or (port_selection > max_value):
                 print("Input must be a number between " + str(min_value) + " and " + str(max_value))
                 continue
             else:
                 ports.append(port_selection) # add port to array for this study
-                if i == num_ports:
-                    final_port = True # at the final port selection, exit loop
-                    break
-                else:
-                    i = i + 1 # go to next port selection
+                final_port = True # at the final port selection, exit loop
+                break
 
-    if len(ports)==0:
-        print("!!!!!!!!!! No ports specified. Defaulting to PORT 0")
-        print("DELETEME this is currently happening if 1 sample cycle specified TODO to better handle this") #TODO
-        ports.append(0) # default to PORT 0 if no ports specified 
+    else:               #handling for any more than sample cycle
+        for i in range(1, num_ports):
+            while not(final_port):
+                port_selection = input("Enter port number for sample "+str(i)+": ")
+                try:
+                    port_selection = int(port_selection)
+                except:
+                    print("Integers only. No characters or letters allowed.")
+                    continue
+
+                if (port_selection < min_value) or (port_selection > max_value):
+                    print("Input must be a number between " + str(min_value) + " and " + str(max_value))
+                    continue
+                else:
+                    ports.append(port_selection) # add port to array for this study
+                    if i == num_ports:
+                        final_port = True # at the final port selection, exit loop
+                        break
+                    else:
+                        i = i + 1 # go to next port selection
     return ports
             
 def set_intake(x):
