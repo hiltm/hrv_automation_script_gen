@@ -184,7 +184,7 @@ def incubation():
         f.write("\r")
         if volume_divided_evenly:
             incubationTestSsampleVolume = intake / sample_cycles
-            f.write("eV:"+str(incubationTestSsampleVolume))         #sample volume
+            f.write("eV:"+str(round(incubationTestSsampleVolume,2)))         #sample volume
             f.write("\r")
         else:
             print("Specify amount of sample volume to pump through PORT  "+str(ports[x])+" ,range is between "+str(params.incubationTestSsampleVolume_min)+" and "+str(params.incubationTestSsampleVolume_max)+". Default is "+str(params.incubationTestSsampleVolume_dft))
@@ -192,7 +192,7 @@ def incubation():
             f.write("eV:"+str(incubationTestSsampleVolume))         #sample volume
             f.write("\r")
         if time_divided_evenly:
-            f.write("wS:"+str(time_between_studies))                #wait for X seconds
+            f.write("wS:"+str(round(time_between_studies,2)))                #wait for X seconds
             f.write("\r")
         else:
             print("Specify the time in seconds to wait after "+str(ports[x])+", range is between "+str(params.incubationTestSsampleVolume_min)+" and "+str(params.incubationTestSsampleVolume_max)+". Default is "+str(params.incubationTestSsampleVolume_dft))
