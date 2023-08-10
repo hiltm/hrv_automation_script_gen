@@ -91,7 +91,7 @@ def get_intake():
 def yes_or_no():
     valid_answer = False
     while not(valid_answer):
-        user_input = input('yes or no: ')
+        user_input = input('(y)es or (n)o: ')
         if user_input.lower() == 'yes' or user_input.lower() == 'y':
             var = True
             valid_answer = True
