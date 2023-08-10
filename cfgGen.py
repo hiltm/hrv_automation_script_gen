@@ -88,6 +88,13 @@ def set_intake(x):
 def get_intake():
      return intake
 
+def set_est_runtime(x):
+    global est_runtime
+    est_runtime = x
+
+def get_est_runtime():
+    return est_runtime
+
 def yes_or_no():
     valid_answer = False
     while not(valid_answer):
@@ -147,6 +154,9 @@ def flush():
         f.write("\r")
         f.write("eRpn")                      # end loop
         f.write("\r")
+    
+        #time = get_est_runtime() + params.emptyIncubationChamberTime * flush_cycles + flush_waittime * flush_cycles
+        #set_est_runtime(time)
 
 def incubation():
     ports = []
@@ -163,6 +173,8 @@ def incubation():
     incubation_test_injector_volume = int_check("incubation_test_injector_volume", params.incubationTestInjectorDrawVolume_min, params.incubationTestInjectorDrawVolume_max, params.incubationTestInjectorDrawVolume_dft)
     f.write("iT:"+str(incubation_test_injector_volume))
     f.write("\r")
+    #time = get_est_runtime() + params.fillIncubationChamberTime
+    #set_est_runtime(time)
     #f.write("#TODO verify cmd exists for pump incubation chamber to HRV\r")#TODO
     print("Specify amount of incubation sample cycles to be completed, range is between "+str(params.incubationTestSampleCycles_min)+" and "+str(params.incubationTestSampleCycles_max)+". Default is "+str(params.incubationTestSampleCycles_dft))
     sample_cycles = int_check("sample_cycles", params.incubationTestSampleCycles_min, params.incubationTestSampleCycles_max, params.incubationTestSampleCycles_dft)
@@ -199,6 +211,8 @@ def incubation():
             incubationTestSampleWaitTime = int_check("incubationTestSampleWaitTime", params.incubationTestSsampleVolume_min, params.incubationTestSsampleVolume_max, params.incubationTestSsampleVolume_dft)
             f.write("wS:"+str(incubationTestSampleWaitTime))       #wait for X seconds
             f.write("\r")
+    #time = get_est_runtime() + sample_cycles * params.fillFilterTime + sample_cycles * incubationTestSampleWaitTime
+    #set_est_runtime(time)
         
         
 def wait_for_next_study():
@@ -210,6 +224,8 @@ def wait_for_next_study():
     f.write("\r")
     f.write("wA:"+str(study_cycle_wait_time))    #wait for X minutes
     f.write("\r")
+    #time = get_est_runtime() + study_cycle_wait_time * 60 #convert to seconds
+    #set_est_runtime(time)
 
 
     
@@ -244,6 +260,9 @@ with open(filename, "w") as f:
         print("#####################################")
         wait_for_next_study()
         print(" ")
+        #time = get_est_runtime() * study_cycles
+        #set_est_runtime(time)
+        #print("est_runtime in seconds is "+get_est_runtime)
 
 
     f.close()

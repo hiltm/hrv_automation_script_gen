@@ -42,3 +42,6 @@ incubationTestSsampleVolume_dft = 500 #mL
 studyCycleWaitTime_min = 0 #minutes
 studyCycleWaitTime_max = 43800 #one month in minutes
 studyCycleWaitTime_dft = 60 #one hour in minutes
+## time estimates ##
+emptyIncubationChamberTime = 30 #seconds
+fillIncubationChamberTime = 120 #seconds
