@@ -48,6 +48,9 @@ def port_selection(sample_cycles):
             if (port_selection < min_value) or (port_selection > max_value):
                 print("Input must be a number between " + str(min_value) + " and " + str(max_value))
                 continue
+            elif port_selection % 2 == 0:
+                print("Entry must be an even port to commence an incubation study")
+                continue
             else:
                 ports.append(port_selection) # add port to array for this study
                 final_port = True # at the final port selection, exit loop
@@ -65,6 +68,9 @@ def port_selection(sample_cycles):
 
                 if (port_selection < min_value) or (port_selection > max_value):
                     print("Input must be a number between " + str(min_value) + " and " + str(max_value))
+                    continue
+                elif not(port_selection % 2 == 0):
+                    print("Entry must be an even port to commence an incubation study")
                     continue
                 else:
                     ports.append(port_selection) # add port to array for this study
