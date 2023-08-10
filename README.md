@@ -1,9 +1,9 @@
 # Overview
 This repo contains python scripts used to generate text files using unique syntax for commands related to automated deployment of an MS-SID instrument. See hrv repo for the microcontroller gear related to that instrument.
 # Building
-
+python -m PyInstaller script.py
 # Installing
-
+python -m auto_py_to_exe
 # Operating the Script
 To use the script, run the generated program. 
 The terminal will prompt for various inputs.
