@@ -157,15 +157,15 @@ def incubation():
     f.write("\r")
     print("Specify amount of incubation chamber volume to be used during incubation study, range is between "+str(params.incubationTestIncubatorDrawVolume_min)+" and "
           +str(params.incubationTestIncubatorDrawVolume_max)+". Default is "+str(params.incubationTestIncubatorDrawVolume_dft)+". This number will be referred to as the OUTTAKE.")
-    intake = int_check("flush_cycles", params.incubationTestIncubatorDrawVolume_min, params.incubationTestIncubatorDrawVolume_max, params.incubationTestIncubatorDrawVolume_dft)
+    intake = int_check("intake", params.incubationTestIncubatorDrawVolume_min, params.incubationTestIncubatorDrawVolume_max, params.incubationTestIncubatorDrawVolume_dft)
     print("Specify amount of incubation chamber volume to be used during incubation study, range is between "+str(params.incubationTestInjectorDrawVolume_min)+" and "
           +str(params.incubationTestInjectorDrawVolume_max)+". Default is "+str(params.incubationTestInjectorDrawVolume_dft))
-    incubation_test_injector_volume = int_check("flush_cycles", params.incubationTestInjectorDrawVolume_min, params.incubationTestInjectorDrawVolume_max, params.incubationTestInjectorDrawVolume_dft)
+    incubation_test_injector_volume = int_check("incubation_test_injector_volume", params.incubationTestInjectorDrawVolume_min, params.incubationTestInjectorDrawVolume_max, params.incubationTestInjectorDrawVolume_dft)
     f.write("iT:"+str(incubation_test_injector_volume))
     f.write("\r")
     #f.write("#TODO verify cmd exists for pump incubation chamber to HRV\r")#TODO
     print("Specify amount of incubation sample cycles to be completed, range is between "+str(params.incubationTestSampleCycles_min)+" and "+str(params.incubationTestSampleCycles_max)+". Default is "+str(params.incubationTestSampleCycles_dft))
-    sample_cycles = int_check("flush_cycles", params.incubationTestSampleCycles_min, params.incubationTestSampleCycles_max, params.incubationTestSampleCycles_dft)
+    sample_cycles = int_check("sample_cycles", params.incubationTestSampleCycles_min, params.incubationTestSampleCycles_max, params.incubationTestSampleCycles_dft)
 
     print("Would you like to divide the sample volume evenly between the "+str(sample_cycles)+" samples? If not you will be prompted to specify individual sample volumes for each port.")
     volume_divided_evenly = yes_or_no()
@@ -174,7 +174,7 @@ def incubation():
     time_divided_evenly = yes_or_no()
     if time_divided_evenly:
         print("Specify the time in seconds to wait between the "+str(sample_cycles)+" samples, range is between "+str(params.incubationTestWaitBetweenStudies_min)+" and "+str(params.incubationTestWaitBetweenStudies_max)+". Default is "+str(params.incubationTestWaitBetweenStudies_dft))
-        time_between_studies = int_check("flush_cycles", params.incubationTestWaitBetweenStudies_min, params.incubationTestWaitBetweenStudies_max, params.incubationTestWaitBetweenStudies_dft)
+        time_between_studies = int_check("time_between_studies", params.incubationTestWaitBetweenStudies_min, params.incubationTestWaitBetweenStudies_max, params.incubationTestWaitBetweenStudies_dft)
 
     ports = port_selection(sample_cycles)
     for x in range(sample_cycles):
@@ -183,21 +183,21 @@ def incubation():
         f.write("pO:"+str(ports[x]))    #go to PORT X
         f.write("\r")
         if volume_divided_evenly:
-            incubationTestSsampleVolume = intake / sample_cycles
-            f.write("eV:"+str(round(incubationTestSsampleVolume,2)))         #sample volume
+            incubationTestSampleVolume = intake / sample_cycles
+            f.write("eV:"+str(round(incubationTestSampleVolume,2)))         #sample volume
             f.write("\r")
         else:
             print("Specify amount of sample volume to pump through PORT  "+str(ports[x])+" ,range is between "+str(params.incubationTestSsampleVolume_min)+" and "+str(params.incubationTestSsampleVolume_max)+". Default is "+str(params.incubationTestSsampleVolume_dft))
-            incubationTestSsampleVolume = int_check("flush_cycles", params.incubationTestSsampleVolume_min, params.incubationTestSsampleVolume_max, params.incubationTestSsampleVolume_dft)
-            f.write("eV:"+str(incubationTestSsampleVolume))         #sample volume
+            incubationTestSampleVolume = int_check("incubationTestSampleVolume", params.incubationTestSsampleVolume_min, params.incubationTestSsampleVolume_max, params.incubationTestSsampleVolume_dft)
+            f.write("eV:"+str(incubationTestSampleVolume))         #sample volume
             f.write("\r")
         if time_divided_evenly:
             f.write("wS:"+str(round(time_between_studies,2)))                #wait for X seconds
             f.write("\r")
         else:
             print("Specify the time in seconds to wait after "+str(ports[x])+", range is between "+str(params.incubationTestSsampleVolume_min)+" and "+str(params.incubationTestSsampleVolume_max)+". Default is "+str(params.incubationTestSsampleVolume_dft))
-            incubationTestSsampleWaitTime = int_check("flush_cycles", params.incubationTestSsampleVolume_min, params.incubationTestSsampleVolume_max, params.incubationTestSsampleVolume_dft)
-            f.write("wS:"+str(incubationTestSsampleWaitTime))       #wait for X seconds
+            incubationTestSampleWaitTime = int_check("incubationTestSampleWaitTime", params.incubationTestSsampleVolume_min, params.incubationTestSsampleVolume_max, params.incubationTestSsampleVolume_dft)
+            f.write("wS:"+str(incubationTestSampleWaitTime))       #wait for X seconds
             f.write("\r")
         
         
@@ -224,7 +224,7 @@ with open(filename, "w") as f:
     print("#####################################")
     init_cfg()
     print("Specify amount of study cycles will be ran, range is between "+str(params.studyCycles_min)+" and "+str(params.studyCycles_max)+". Default is "+str(params.studyCycles_dft))
-    study_cycles = int_check("flush_cycles", params.studyCycles_min, params.studyCycles_max, params.studyCycles_dft)
+    study_cycles = int_check("study_cycles", params.studyCycles_min, params.studyCycles_max, params.studyCycles_dft)
     for x in range(study_cycles):
         #TODO function for reading if chamber is empty
         f.write("#STUDY CYCLE 1\r")
