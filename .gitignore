@@ -51,3 +51,4 @@ docs/_build/
 
 # Generated config file (for now - may decide to commit to repo in future)
 *.cfg
+out/*
