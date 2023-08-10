@@ -75,17 +75,18 @@ def get_intake():
      return intake
 
 def yes_or_no():
-    # TODO beef this function up for error checking and accepting just y or n
-    user_input = input('yes or no: ')
-    if user_input.lower() == 'yes':
-        print('user typed yes')
-        var = True
-    elif user_input.lower() == 'no':
-        print('user typed no')
-        var = False
-    else:
-        print('Type yes or no')
-        var = False
+    valid_answer = False
+    while not(valid_answer):
+        user_input = input('yes or no: ')
+        if user_input.lower() == 'yes' or user_input.lower() == 'y':
+            var = True
+            valid_answer = True
+        elif user_input.lower() == 'no' or user_input.lower() == 'n':
+            var = False
+            valid_answer = True
+        else:
+            print('Type (y)es or (n)o')
+            continue
     return var
             
 def init_cfg():
