@@ -5,7 +5,6 @@ import os
 import params
 from datetime import datetime
 
-acceptable_chars = set('0123456789')
 stored_ports = []
 est_runtime = 0
 
