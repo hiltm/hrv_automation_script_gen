@@ -275,6 +275,13 @@ def wait_for_next_experiment():
     time = get_est_runtime() + experiment_wait_time * 60 #convert to seconds
     set_est_runtime(time)
 
+def config_summary():
+    f.write("\r")
+    f.write("#SUMMARY")
+    f.write("\r")
+    f.write("#"+str(get_est_runtime())+" SECONDS")
+    f.write("\r")
+    f.write("#PORTS IN USE ARE "+str(get_stored_ports()))
     f.write("\r")
     
 #file generation   
@@ -311,6 +318,8 @@ with open(filename, "w") as f:
         time = get_est_runtime() * experiments
         set_est_runtime(time)
         print("est_runtime in seconds is "+str(get_est_runtime())+" seconds which is "+str(round(get_est_runtime()/60,2))+" minutes")
+        config_summary()
+        print(" ")
 
 
     f.close()
