@@ -222,16 +222,16 @@ def incubation():
     #set_est_runtime(time)
         
         
-def wait_for_next_study():
-    print("Specify how long to wait until the start of the next study. This can be a long time. Range is between "+str(params.studyCycleWaitTime_min)+" and "+str(params.studyCycleWaitTime_max)+". Default is "+str(params.studyCycleWaitTime_dft))
-    study_cycle_wait_time=int_check("study_cycle_wait_time", params.studyCycleWaitTime_min, params.studyCycleWaitTime_max, params.studyCycleWaitTime_dft)
+def wait_for_next_experiment():
+    print("Specify how long to wait until the start of the next experiment. This can be a long time. Range is between "+str(params.experimentWaitTime_min)+" and "+str(params.experimentWaitTime_max)+". Default is "+str(params.experimentWaitTime_dft))
+    experiment_wait_time=int_check("experiment_wait_time", params.experimentWaitTime_min, params.experimentWaitTime_max, params.experimentWaitTime_dft)
     f.write("wHp")                              #wait for home port
     f.write("\r")
     f.write("eP")                                #completely empty incubator
     f.write("\r")
-    f.write("wA:"+str(study_cycle_wait_time))    #wait for X minutes
+    f.write("wA:"+str(experiment_wait_time))    #wait for X minutes
     f.write("\r")
-    #time = get_est_runtime() + study_cycle_wait_time * 60 #convert to seconds
+    #time = get_est_runtime() + experiment_wait_time * 60 #convert to seconds
     #set_est_runtime(time)
 
 
@@ -246,11 +246,11 @@ with open(filename, "w") as f:
     print("Initial configutation/first-time setup")
     print("#####################################")
     init_cfg()
-    print("Specify amount of study cycles will be ran, range is between "+str(params.studyCycles_min)+" and "+str(params.studyCycles_max)+". Default is "+str(params.studyCycles_dft))
-    study_cycles = int_check("study_cycles", params.studyCycles_min, params.studyCycles_max, params.studyCycles_dft)
-    for x in range(study_cycles):
+    print("Specify amount of experiments will be ran, range is between "+str(params.experiments_min)+" and "+str(params.experiments_max)+". Default is "+str(params.experiments_dft))
+    experiments = int_check("experiments", params.experiments_min, params.experiments_max, params.experiments_dft)
+    for x in range(experiments):
         #TODO function for reading if chamber is empty
-        f.write("#STUDY CYCLE 1\r")
+        f.write("#EXPERIMENT "+str(x)+"\r")
         print(" ")
         print("#####################################")
         print("Incubator Pre-Flush Parameters")
@@ -263,11 +263,11 @@ with open(filename, "w") as f:
         incubation()
         print(" ")
         print("#####################################")
-        print("Between Study Parameters")
+        print("Between Experiment Parameters")
         print("#####################################")
-        wait_for_next_study()
+        wait_for_next_experiment()
         print(" ")
-        #time = get_est_runtime() * study_cycles
+        #time = get_est_runtime() * experiments
         #set_est_runtime(time)
         #print("est_runtime in seconds is "+get_est_runtime)
 

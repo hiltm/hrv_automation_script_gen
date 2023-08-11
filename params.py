@@ -6,9 +6,9 @@ incubatorVolume_dft = 1950 #mL
 injectorVolume_min = 0 #mL
 injectorVolume_max = 500 #mL
 injectorVolume_dft = 0 #mL
-studyCycles_min = 0
-studyCycles_max = 20
-studyCycles_dft = 1
+experiments_min = 0
+experiments_max = 20
+experiments_dft = 1
 ## flush ##
 flushCycles_min = 0
 flushCycles_max = 5
@@ -39,9 +39,9 @@ incubationTestSsampleVolume_min = 0 #mL
 incubationTestSsampleVolume_max = 500 #mL
 incubationTestSsampleVolume_dft = 500 #mL
 ## wait for next study ##
-studyCycleWaitTime_min = 0 #minutes
-studyCycleWaitTime_max = 43800 #one month in minutes
-studyCycleWaitTime_dft = 60 #one hour in minutes
+experimentWaitTime_min = 0 #minutes
+experimentWaitTime_max = 43800 #one month in minutes
+experimentWaitTime_dft = 60 #one hour in minutes
 ## time estimates ##
 emptyIncubationChamberTime = 30 #seconds
 fillIncubationChamberTime = 120 #seconds
