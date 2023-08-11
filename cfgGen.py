@@ -1,7 +1,10 @@
 ###TODOS#######
 #check if using injector or not; this will have different commands sent to the PIC TODO
-#create command to get start time
+#wait time before deployment
 #find some way to estimate runtime
+#don't carry ports across studies
+#summary at end of file with runtime, ports used, intake volume, outtake volume
+#update logic that incubation chamber is 1950 max, including sum of injector and incubator
 
 import os
 import params
