@@ -4,6 +4,11 @@ This repo contains python scripts used to generate text files using unique synta
 python -m PyInstaller script.py
 # Installing
 python -m auto_py_to_exe
+This will open a localhost in web browser
+Point to cfgGen.py in Script Location
+Point to either .ico image in the img folder for Icon
+Run Convert .py to .exe
+The generated files will appear in the output folder in the project directory
 # Operating the Script
 To use the script, run the generated program. 
 The terminal will prompt for various inputs.
