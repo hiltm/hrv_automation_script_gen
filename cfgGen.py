@@ -33,20 +33,20 @@ def int_check(parameter, min_value, max_value, dft_value):
                 valid_answer = True
                 return number1
             
-def port_selection(sample_cycles):
+def port_selection(timepoint_samples):
     min_value = 2
     max_value = 98
     ports = []
     final_port = False
 
-    print("Select port positions for this sample. Even ports only for an incubation study. PORT0 is HOME. PORT98 is last available port.")
+    print("Select port positions for this timepoint sample. Even ports only for an incubation study. PORT0 is HOME. PORT98 is last available port.")
     print("=====================================")
     #num_ports = int(input("Enter number of ports collecting samples for this study : "))
-    num_ports = sample_cycles
+    num_ports = timepoint_samples
 
-    if num_ports == 1: #handling for only one sample cycle specified
+    if num_ports == 1: #handling for only one timepoint sample specified
         while not(final_port):
-            port_selection = input("Enter port number for sample 1 : ")
+            port_selection = input("Enter port number for timepoint sample 1 : ")
             try:
                 port_selection = int(port_selection)
             except:
@@ -63,10 +63,10 @@ def port_selection(sample_cycles):
                 final_port = True # at the final port selection, exit loop
                 break
 
-    else:               #handling for any more than sample cycle
+    else:               #handling for any more than one timepoint samples
         for i in range(1, num_ports):
             while not(final_port):
-                port_selection = input("Enter port number for sample "+str(i)+": ")
+                port_selection = input("Enter port number for timepoint sample "+str(i)+": ")
                 try:
                     port_selection = int(port_selection)
                 except:
@@ -80,7 +80,7 @@ def port_selection(sample_cycles):
                     print("Entry must be an even port to commence an incubation study")
                     continue
                 else:
-                    ports.append(port_selection) # add port to array for this study
+                    ports.append(port_selection) # add port to array for this timepoint
                     if i == num_ports:
                         final_port = True # at the final port selection, exit loop
                         break
@@ -183,42 +183,42 @@ def incubation():
     #time = get_est_runtime() + params.fillIncubationChamberTime
     #set_est_runtime(time)
     #f.write("#TODO verify cmd exists for pump incubation chamber to HRV\r")#TODO
-    print("Specify amount of incubation sample cycles to be completed, range is between "+str(params.incubationTestSampleCycles_min)+" and "+str(params.incubationTestSampleCycles_max)+". Default is "+str(params.incubationTestSampleCycles_dft))
-    sample_cycles = int_check("sample_cycles", params.incubationTestSampleCycles_min, params.incubationTestSampleCycles_max, params.incubationTestSampleCycles_dft)
+    print("Specify amount of incubation timepoint sample to be completed, range is between "+str(params.timepointSamples_min)+" and "+str(params.timepointSamples_max)+". Default is "+str(params.timepointSamples_dft))
+    timepoint_samples = int_check("timepoint_samples", params.timepointSamples_min, params.timepointSamples_max, params.timepointSamples_dft)
 
-    print("Would you like to divide the sample volume evenly between the "+str(sample_cycles)+" samples? If not you will be prompted to specify individual sample volumes for each port.")
+    print("Would you like to divide the sample volume evenly between the "+str(timepoint_samples)+" timepoint samples? If not you will be prompted to specify individual sample volumes for each port.")
     volume_divided_evenly = yes_or_no()
 
-    print("Would you like to wait the same amount of time in seconds between the "+str(sample_cycles)+" samples? If not you will be prompted to specify individual wait times for each sample.")
+    print("Would you like to wait the same amount of time in seconds between the "+str(timepoint_samples)+" timepoint samples? If not you will be prompted to specify individual wait times for each sample.")
     time_divided_evenly = yes_or_no()
     if time_divided_evenly:
-        print("Specify the time in seconds to wait between the "+str(sample_cycles)+" samples, range is between "+str(params.incubationTestWaitBetweenStudies_min)+" and "+str(params.incubationTestWaitBetweenStudies_max)+". Default is "+str(params.incubationTestWaitBetweenStudies_dft))
-        time_between_studies = int_check("time_between_studies", params.incubationTestWaitBetweenStudies_min, params.incubationTestWaitBetweenStudies_max, params.incubationTestWaitBetweenStudies_dft)
+        print("Specify the time in seconds to wait between the "+str(timepoint_samples)+" timepoint samples, range is between "+str(params.waitTimeBetweenTimepointSamples_min)+" and "+str(params.waitTimeBetweenTimepointSamples_max)+". Default is "+str(params.waitTimeBetweenTimepointSamples_dft))
+        time_between_samples = int_check("time_between_samples", params.waitTimeBetweenTimepointSamples_min, params.waitTimeBetweenTimepointSamples_max, params.waitTimeBetweenTimepointSamples_dft)
 
-    ports = port_selection(sample_cycles)
-    for x in range(sample_cycles):
-        f.write("#Sample cycle "+str(x+1))
+    ports = port_selection(timepoint_samples)
+    for x in range(timepoint_samples):
+        f.write("#Timepoint sample "+str(x+1))
         f.write("\r")
         f.write("pO:"+str(ports[x]))    #go to PORT X
         f.write("\r")
         if volume_divided_evenly:
-            incubationTestSampleVolume = intake / sample_cycles
+            incubationTestSampleVolume = intake / timepoint_samples
             f.write("eV:"+str(round(incubationTestSampleVolume,2)))         #sample volume
             f.write("\r")
         else:
-            print("Specify amount of sample volume to pump through PORT  "+str(ports[x])+" ,range is between "+str(params.incubationTestSsampleVolume_min)+" and "+str(params.incubationTestSsampleVolume_max)+". Default is "+str(params.incubationTestSsampleVolume_dft))
-            incubationTestSampleVolume = int_check("incubationTestSampleVolume", params.incubationTestSsampleVolume_min, params.incubationTestSsampleVolume_max, params.incubationTestSsampleVolume_dft)
+            print("Specify amount of sample volume to pump through PORT  "+str(ports[x])+" ,range is between "+str(params.incubationTestSampleVolume_min)+" and "+str(params.incubationTestSampleVolume_max)+". Default is "+str(params.incubationTestSampleVolume_dft))
+            incubationTestSampleVolume = int_check("incubationTestSampleVolume", params.incubationTestSampleVolume_min, params.incubationTestSampleVolume_max, params.incubationTestSampleVolume_dft)
             f.write("eV:"+str(incubationTestSampleVolume))         #sample volume
             f.write("\r")
         if time_divided_evenly:
-            f.write("wS:"+str(round(time_between_studies,2)))                #wait for X seconds
+            f.write("wS:"+str(round(time_between_samples,2)))                #wait for X seconds
             f.write("\r")
         else:
-            print("Specify the time in seconds to wait after "+str(ports[x])+", range is between "+str(params.incubationTestSsampleVolume_min)+" and "+str(params.incubationTestSsampleVolume_max)+". Default is "+str(params.incubationTestSsampleVolume_dft))
-            incubationTestSampleWaitTime = int_check("incubationTestSampleWaitTime", params.incubationTestSsampleVolume_min, params.incubationTestSsampleVolume_max, params.incubationTestSsampleVolume_dft)
+            print("Specify the time in seconds to wait after "+str(ports[x])+", range is between "+str(params.incubationTestSampleVolume_min)+" and "+str(params.incubationTestSampleVolume_max)+". Default is "+str(params.incubationTestSampleVolume_dft))
+            incubationTestSampleWaitTime = int_check("incubationTestSampleWaitTime", params.incubationTestSampleVolume_min, params.incubationTestSampleVolume_max, params.incubationTestSampleVolume_dft)
             f.write("wS:"+str(incubationTestSampleWaitTime))       #wait for X seconds
             f.write("\r")
-    #time = get_est_runtime() + sample_cycles * params.fillFilterTime + sample_cycles * incubationTestSampleWaitTime
+    #time = get_est_runtime() + timepoint_samples * params.fillFilterTime + timepoint_samples * incubationTestSampleWaitTime
     #set_est_runtime(time)
         
         
