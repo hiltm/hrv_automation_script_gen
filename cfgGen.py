@@ -63,6 +63,7 @@ def port_selection(timepoint_samples):
                 continue
             else:
                 ports.append(port_selection) # add port to array for this study
+                set_stored_ports(port_selection)  #set to global
                 final_port = True # at the final port selection, exit loop
                 break
 
@@ -87,7 +88,7 @@ def port_selection(timepoint_samples):
                     continue
                 else:
                     ports.append(port_selection) # add port to array for this timepoint
-                    stored_ports.append(port_selection)
+                    set_stored_ports(port_selection)  #set to global
                     if i == num_ports:
                         final_port = True # at the final port selection, exit loop
                         break
@@ -110,7 +111,6 @@ def get_est_runtime():
     return est_runtime
 
 def set_stored_ports(x):
-    global stored_ports
     stored_ports.append(x)
 
 def get_stored_ports():
