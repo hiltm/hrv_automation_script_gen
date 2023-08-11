@@ -142,6 +142,7 @@ def yes_or_no():
     return var
             
 def init_cfg():
+    valid_response = False
     now = datetime.now()
     dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
     f.write("#"+dt_string)
@@ -154,11 +155,22 @@ def init_cfg():
         f.write("\r")
         f.write("wA:"+str(deploy_waittime))     # wait for x minutes
         f.write("\r")
-    print("Specify actual total injector volume in mL, range is between "+str(params.injectorVolume_min)+" and "+str(params.injectorVolume_max)+". Default is "+str(params.injectorVolume_dft))
-    tV=int_check("tV", params.injectorVolume_min, params.injectorVolume_max, params.injectorVolume_dft)
+    while not(valid_response):
+        print("Specify actual total injector volume in mL, range is between "+str(params.injectorVolume_min)+" and "+str(params.injectorVolume_max)+". Default is "+str(params.injectorVolume_dft))
+        tV=int_check("tV", params.injectorVolume_min, params.injectorVolume_max, params.injectorVolume_dft)
+        print("Specify actual total incubator volume in mL, range is between "+str(params.incubatorVolume_min)+" and "+str(params.incubatorVolume_max)+". Default is "+str(params.incubatorVolume_dft))
+        iV=int_check("iV", params.incubatorVolume_min, params.incubatorVolume_max, params.incubatorVolume_dft)
+        if tV > 0:
+            usingInjector = True
+        if tV + iV > params.incubatorVolume_max:
+            print("The specified values for injector volume ("+str(tV)+") and incubator intake volume ("+str(iV)+") are larger than maximum allowed ("+str(params.incubatorVolume_max)+"). Please reenter.")
+        else:
+            valid_response = True
+    #print("Specify actual total injector volume in mL, range is between "+str(params.injectorVolume_min)+" and "+str(params.injectorVolume_max)+". Default is "+str(params.injectorVolume_dft))
+    #tV=int_check("tV", params.injectorVolume_min, params.injectorVolume_max, params.injectorVolume_dft)
     f.write("tV:"+str(tV)+"\r")
-    print("Specify actual total incubator volume in mL, range is between "+str(params.incubatorVolume_min)+" and "+str(params.incubatorVolume_max)+". Default is "+str(params.incubatorVolume_dft))
-    iV=int_check("iV", params.incubatorVolume_min, params.incubatorVolume_max, params.incubatorVolume_dft)
+    #print("Specify actual total incubator volume in mL, range is between "+str(params.incubatorVolume_min)+" and "+str(params.incubatorVolume_max)+". Default is "+str(params.incubatorVolume_dft))
+    #iV=int_check("iV", params.incubatorVolume_min, params.incubatorVolume_max, params.incubatorVolume_dft)
     set_intake(iV)                          # setting global to track intake volume
     f.write("iV:"+str(iV)+"\r")
     print("TODO any more init cfg params")#TODO
