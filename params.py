@@ -45,3 +45,5 @@ studyCycleWaitTime_dft = 60 #one hour in minutes
 ## time estimates ##
 emptyIncubationChamberTime = 30 #seconds
 fillIncubationChamberTime = 120 #seconds
+moveToPort = 60 #seconds
+fillFilterTime = 60 #seconds
