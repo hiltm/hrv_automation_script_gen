@@ -293,6 +293,13 @@ def config_summary():
     f.write("\r")
     f.write("#PORTS IN USE ARE "+str(get_stored_ports()))
     f.write("\r")
+    print("vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv")
+    print("Experiment Summary")
+    print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
+    time = get_est_runtime() * experiments
+    set_est_runtime(time)
+    print("Estimated runtime in seconds is "+str(get_est_runtime())+" seconds which is "+str(round(get_est_runtime()/60,2))+" minutes")
+    print("Ports in use are "+str(get_stored_ports()))
     
 #file generation   
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
@@ -325,11 +332,6 @@ with open(filename, "w") as f:
         print("#####################################")
         wait_for_next_experiment()
         print(" ")
-        time = get_est_runtime() * experiments
-        set_est_runtime(time)
-        print("est_runtime in seconds is "+str(get_est_runtime())+" seconds which is "+str(round(get_est_runtime()/60,2))+" minutes")
-        config_summary()
-        print(" ")
-
+    config_summary()
 
     f.close()
