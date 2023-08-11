@@ -14,7 +14,11 @@ def int_check(parameter, min_value, max_value, dft_value):
     valid_answer = False
     while not(valid_answer):
             number1 = input(': ') or dft_value
-            number1 = int(number1)
+            try:
+                number1 = int(number1)
+            except:
+                print("Integers only. No characters or letters allowed.")
+                continue
             if (number1 < min_value) or (number1 > max_value):
                 print("Input must be a number between " + str(min_value) + " and " + str(max_value))
                 continue
