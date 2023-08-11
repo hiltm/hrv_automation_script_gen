@@ -1,6 +1,5 @@
 ###TODOS#######
 #check if using injector or not; this will have different commands sent to the PIC TODO
-#find some way to estimate runtime
 #summary at end of file with runtime, ports used, intake volume, outtake volume
 #update logic that incubation chamber is 1950 max, including sum of injector and incubator
 
@@ -155,13 +154,13 @@ def init_cfg():
         f.write("\r")
         f.write("wA:"+str(deploy_waittime))     # wait for x minutes
         f.write("\r")
+    print("Specify actual total injector volume in mL, range is between "+str(params.injectorVolume_min)+" and "+str(params.injectorVolume_max)+". Default is "+str(params.injectorVolume_dft))
+    tV=int_check("tV", params.injectorVolume_min, params.injectorVolume_max, params.injectorVolume_dft)
+    f.write("tV:"+str(tV)+"\r")
     print("Specify actual total incubator volume in mL, range is between "+str(params.incubatorVolume_min)+" and "+str(params.incubatorVolume_max)+". Default is "+str(params.incubatorVolume_dft))
     iV=int_check("iV", params.incubatorVolume_min, params.incubatorVolume_max, params.incubatorVolume_dft)
     set_intake(iV)                          # setting global to track intake volume
     f.write("iV:"+str(iV)+"\r")
-    print("Specify actual total injector volume in mL, range is between "+str(params.injectorVolume_min)+" and "+str(params.injectorVolume_max)+". Default is "+str(params.injectorVolume_dft))
-    tV=int_check("tV", params.injectorVolume_min, params.injectorVolume_max, params.injectorVolume_dft)
-    f.write("tV:"+str(tV)+"\r")
     print("TODO any more init cfg params")#TODO
             
 def flush():
