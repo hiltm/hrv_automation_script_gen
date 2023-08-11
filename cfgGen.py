@@ -1,7 +1,5 @@
-###TODOS#######
-#check if using injector or not; this will have different commands sent to the PIC TODO
-#summary at end of file with runtime, ports used, intake volume, outtake volume
-#update logic that incubation chamber is 1950 max, including sum of injector and incubator
+###TODOS####### TODO
+#add intake volume, outtake volume to end of file summary
 
 import os
 import params
@@ -143,6 +141,7 @@ def yes_or_no():
             
 def init_cfg():
     valid_response = False
+    using_injector = False
     now = datetime.now()
     dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
     f.write("#"+dt_string)
@@ -161,19 +160,19 @@ def init_cfg():
         print("Specify actual total incubator volume in mL, range is between "+str(params.incubatorVolume_min)+" and "+str(params.incubatorVolume_max)+". Default is "+str(params.incubatorVolume_dft))
         iV=int_check("iV", params.incubatorVolume_min, params.incubatorVolume_max, params.incubatorVolume_dft)
         if tV > 0:
-            usingInjector = True
+            using_injector = True
         if tV + iV > params.incubatorVolume_max:
             print("The specified values for injector volume ("+str(tV)+") and incubator intake volume ("+str(iV)+") are larger than maximum allowed ("+str(params.incubatorVolume_max)+"). Please reenter.")
         else:
             valid_response = True
-    #print("Specify actual total injector volume in mL, range is between "+str(params.injectorVolume_min)+" and "+str(params.injectorVolume_max)+". Default is "+str(params.injectorVolume_dft))
-    #tV=int_check("tV", params.injectorVolume_min, params.injectorVolume_max, params.injectorVolume_dft)
-    f.write("tV:"+str(tV)+"\r")
-    #print("Specify actual total incubator volume in mL, range is between "+str(params.incubatorVolume_min)+" and "+str(params.incubatorVolume_max)+". Default is "+str(params.incubatorVolume_dft))
-    #iV=int_check("iV", params.incubatorVolume_min, params.incubatorVolume_max, params.incubatorVolume_dft)
-    set_intake(iV)                          # setting global to track intake volume
-    f.write("iV:"+str(iV)+"\r")
-    print("TODO any more init cfg params")#TODO
+    if using_injector:
+        f.write("fT:"+str(iV)+","+str(tV))                      #fill incubator nnnn & tt volume tracer mL
+        f.write("\r")
+    else:
+        f.write("fV:"+str(iV))                               #fill incubator nnnn mL
+        f.write("\r")
+    intake = tV + iV                        # intake is total within incubation chamber, sum of injector and incbuator draw volumes
+    set_intake(intake)                          # setting global to track intake volume
             
 def flush():
     f.write("#Incubator pre-flush")
