@@ -122,6 +122,13 @@ def init_cfg():
     dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
     f.write("#"+dt_string)
     f.write("\r")
+    print("Specify wait time in minutes to allow for instrument deployment, range is between "+str(params.deploymentWaitTime_min)+" and "+str(params.deploymentWaitTime_max)+". Default is "+str(params.deploymentWaitTime_dft))
+    deploy_waittime = int_check("flush_waittime", params.deploymentWaitTime_min, params.deploymentWaitTime_max, params.deploymentWaitTime_dft)
+    if deploy_waittime > 0:
+        f.write("#Wait for deployment "+str(deploy_waittime)+" minutes")
+        f.write("\r")
+        f.write("wA:"+str(deploy_waittime))     # wait for x minutes
+        f.write("\r")
     print("Specify actual total incubator volume in mL, range is between "+str(params.incubatorVolume_min)+" and "+str(params.incubatorVolume_max)+". Default is "+str(params.incubatorVolume_dft))
     iV=int_check("iV", params.incubatorVolume_min, params.incubatorVolume_max, params.incubatorVolume_dft)
     set_intake(iV)                          # setting global to track intake volume
