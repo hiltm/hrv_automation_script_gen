@@ -11,6 +11,7 @@ import params
 from datetime import datetime
 
 acceptable_chars = set('0123456789')
+stored_ports = []
 
 
 def int_check(parameter, min_value, max_value, dft_value):
@@ -52,8 +53,12 @@ def port_selection(timepoint_samples):
             except:
                 print("Integers only. No characters or letters allowed.")
                 continue
+            #print(check_port_usage(stored_ports,port_selection))
             if (port_selection < min_value) or (port_selection > max_value):
                 print("Input must be a number between " + str(min_value) + " and " + str(max_value))
+                continue
+            elif port_selection in get_stored_ports():
+                print("This port has already been used. Please select again.")
                 continue
             elif not(port_selection % 2 == 0):
                 print("Entry must be an even port to commence an incubation study")
@@ -76,11 +81,15 @@ def port_selection(timepoint_samples):
                 if (port_selection < min_value) or (port_selection > max_value):
                     print("Input must be a number between " + str(min_value) + " and " + str(max_value))
                     continue
+                elif port_selection in get_stored_ports():
+                    print("This port has already been used. Please select again.")
+                    continue
                 elif not(port_selection % 2 == 0):
                     print("Entry must be an even port to commence an incubation study")
                     continue
                 else:
                     ports.append(port_selection) # add port to array for this timepoint
+                    stored_ports.append(port_selection)
                     if i == num_ports:
                         final_port = True # at the final port selection, exit loop
                         break
@@ -101,6 +110,23 @@ def set_est_runtime(x):
 
 def get_est_runtime():
     return est_runtime
+
+def set_stored_ports(x):
+    global stored_ports
+    stored_ports.append(x)
+
+def get_stored_ports():
+    return stored_ports
+
+def check_port_usage(stored_ports, port_request):
+
+    if port_request not in stored_ports:
+        stored_ports.append(port_request)
+        return True
+    else:
+        print("This port already in use!")
+        return False
+
 
 def yes_or_no():
     valid_answer = False
@@ -257,7 +283,7 @@ with open(filename, "w") as f:
     experiments = int_check("experiments", params.experiments_min, params.experiments_max, params.experiments_dft)
     for x in range(experiments):
         #TODO function for reading if chamber is empty
-        f.write("#EXPERIMENT "+str(x)+"\r")
+        f.write("#EXPERIMENT "+str(x+1)+"\r")
         print(" ")
         print("#####################################")
         print("Incubator Pre-Flush Parameters")
