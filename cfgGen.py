@@ -10,6 +10,7 @@ from datetime import datetime
 
 acceptable_chars = set('0123456789')
 stored_ports = []
+est_runtime = 0
 
 
 def int_check(parameter, min_value, max_value, dft_value):
@@ -195,8 +196,8 @@ def flush():
         f.write("eRpn")                      # end loop
         f.write("\r")
     
-        #time = get_est_runtime() + params.emptyIncubationChamberTime * flush_cycles + flush_waittime * flush_cycles
-        #set_est_runtime(time)
+        time = get_est_runtime() + params.emptyIncubationChamberTime * flush_cycles + flush_waittime * flush_cycles
+        set_est_runtime(time)
 
 def incubation():
     ports = []
@@ -213,8 +214,8 @@ def incubation():
     incubation_test_injector_volume = int_check("incubation_test_injector_volume", params.incubationTestInjectorDrawVolume_min, params.incubationTestInjectorDrawVolume_max, params.incubationTestInjectorDrawVolume_dft)
     f.write("iT:"+str(incubation_test_injector_volume))
     f.write("\r")
-    #time = get_est_runtime() + params.fillIncubationChamberTime
-    #set_est_runtime(time)
+    time = get_est_runtime() + params.fillIncubationChamberTime
+    set_est_runtime(time)
     #f.write("#TODO verify cmd exists for pump incubation chamber to HRV\r")#TODO
     print("Specify amount of incubation timepoint sample to be completed, range is between "+str(params.timepointSamples_min)+
           " and "+str(params.timepointSamples_max)+". Default is "+str(params.timepointSamples_dft))
@@ -249,14 +250,16 @@ def incubation():
         if time_divided_evenly:
             f.write("wS:"+str(round(time_between_samples,2)))                #wait for X seconds
             f.write("\r")
+            time = get_est_runtime() + timepoint_samples * params.fillFilterTime + timepoint_samples * time_between_samples
+            set_est_runtime(time)
         else:
             print("Specify the time in seconds to wait after "+str(ports[x])+", range is between "+str(params.incubationTestSampleVolume_min)+
                   " and "+str(params.incubationTestSampleVolume_max)+". Default is "+str(params.incubationTestSampleVolume_dft))
             incubationTestSampleWaitTime = int_check("incubationTestSampleWaitTime", params.incubationTestSampleVolume_min, params.incubationTestSampleVolume_max, params.incubationTestSampleVolume_dft)
             f.write("wS:"+str(incubationTestSampleWaitTime))       #wait for X seconds
             f.write("\r")
-    #time = get_est_runtime() + timepoint_samples * params.fillFilterTime + timepoint_samples * incubationTestSampleWaitTime
-    #set_est_runtime(time)
+            time = get_est_runtime() + timepoint_samples * params.fillFilterTime + timepoint_samples * incubationTestSampleWaitTime
+            set_est_runtime(time)
         
         
 def wait_for_next_experiment():
@@ -269,10 +272,10 @@ def wait_for_next_experiment():
     f.write("\r")
     f.write("wA:"+str(experiment_wait_time))    #wait for X minutes
     f.write("\r")
-    #time = get_est_runtime() + experiment_wait_time * 60 #convert to seconds
-    #set_est_runtime(time)
+    time = get_est_runtime() + experiment_wait_time * 60 #convert to seconds
+    set_est_runtime(time)
 
-
+    f.write("\r")
     
 #file generation   
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
@@ -305,9 +308,9 @@ with open(filename, "w") as f:
         print("#####################################")
         wait_for_next_experiment()
         print(" ")
-        #time = get_est_runtime() * experiments
-        #set_est_runtime(time)
-        #print("est_runtime in seconds is "+get_est_runtime)
+        time = get_est_runtime() * experiments
+        set_est_runtime(time)
+        print("est_runtime in seconds is "+str(get_est_runtime())+" seconds which is "+str(round(get_est_runtime()/60,2))+" minutes")
 
 
     f.close()
