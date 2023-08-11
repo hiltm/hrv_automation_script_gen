@@ -332,6 +332,10 @@ with open(filename, "w") as f:
         print("#####################################")
         wait_for_next_experiment()
         print(" ")
+    f.write("eNd")                              #end of script
+    f.write("\r")
+    f.write("#END")                              #end of script
+    f.write("\r")
     config_summary()
 
     f.close()
