@@ -334,6 +334,7 @@ with open(filename, "w") as f:
         print(" ")
     config_summary()
     f.write("eNd")                              #end of script
+    f.write("\n\r")
     f.write("#END")                              #end of script
     f.write("\n\r")
 
