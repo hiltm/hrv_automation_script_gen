@@ -315,7 +315,7 @@ with open(filename, "w") as f:
     experiments = int_check("experiments", params.experiments_min, params.experiments_max, params.experiments_dft)
     for x in range(experiments):
         #TODO function for reading if chamber is empty
-        f.write("#EXPERIMENT "+str(x+1)+"\r")
+        f.write("#EXPERIMENT "+str(x+1)+"\n\r")
         print(" ")
         print("#####################################")
         print("Incubator Pre-Flush Parameters")
@@ -332,10 +332,10 @@ with open(filename, "w") as f:
         print("#####################################")
         wait_for_next_experiment()
         print(" ")
-    f.write("eNd")                              #end of script
-    f.write("\r")
-    f.write("#END")                              #end of script
-    f.write("\r")
     config_summary()
+    f.write("eNd")                              #end of script
+    f.write("#END")                              #end of script
+    f.write("\n\r")
+
 
     f.close()
