@@ -177,6 +177,7 @@ def init_cfg():
     f.write("\n\r")
             
 def flush():
+    flush_waittime = 0                      # pre-defining
     f.write("#Incubator pre-flush")
     f.write("\n\r")
     print("Specify flush cycles for incubator, range is between "+str(params.flushCycles_min)+" and "+str(params.flushCycles_max)+". Default is "+str(params.flushCycles_dft))
@@ -208,8 +209,8 @@ def flush():
     f.write("eRpn")                      # end loop
     f.write("\n\r")
     
-        time = get_est_runtime() + params.emptyIncubationChamberTime * flush_cycles + flush_waittime * flush_cycles
-        set_est_runtime(time)
+    time = get_est_runtime() + params.emptyIncubationChamberTime * flush_cycles + flush_waittime * flush_cycles
+    set_est_runtime(time)
 
 def incubation():
     ports = []
@@ -281,6 +282,7 @@ def wait_for_next_experiment():
     f.write("wHp")                              #wait for home port
     f.write("\n\r")
     f.write("eP")                                #completely empty incubator
+    f.write("\n\r")
     f.write("wA:"+str(experiment_wait_time))    #wait for X minutes
     f.write("\n\r")
     time = get_est_runtime() + experiment_wait_time * 60 #convert to seconds
