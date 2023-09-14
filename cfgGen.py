@@ -1,6 +1,7 @@
 ###TODOS####### TODO
 #add intake volume, outtake volume to end of file summary
 #put in handling for verifying that subscample volume doesn't exceed OUTTAKE
+#put in handling to empty and zero chamber after an experiment
 
 import os
 import params
