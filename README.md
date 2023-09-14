@@ -22,3 +22,17 @@ This script can then be transferred to the SD card on the MS-SID microcontroller
 | --- | --- | --- | --- |
 | VB: | 1 or 0 |  | Verbose operation 1=on, 0=off |
 | IV: | nnn |  | Actual total incubator volume (mL) |
+| TIM |  | SCB | Sets Mclane time and date from SCB |
+| GSP |  | SID | Get a prompt from the SID |
+| WHP |  | SCB | Wait for home port |
+| PO: | nn (0…99) | SCB | Go to port nn, 0 to 99 |
+| WA: | nnn | SCB | Wait for nnn minutes |
+| WS: | nnn | SCB | Wait for nnn seconds |
+| RP: | n | SCB | Repeat n times the instructions that follow until ERPN |
+| ERPN |  | SCB | End the above numeric repeat loop |
+| FV: | nnn | SID | Fill incubator nnn (mL) |
+| FT: | nnn,tt | SID | Fill incubator nnn (mL) & tt volume tracer (mL) |
+| EV: | nnn | SID | Empty incubator nnn (mL) |
+| EP |  | SID | Completely empty incubator |
+| IT: | SID | Inject incubator nnn (mL) tracer |
+| END | SCB | The last command, ends the script |
