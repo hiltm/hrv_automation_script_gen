@@ -148,8 +148,6 @@ def yes_or_no():
     return var
             
 def init_cfg():
-    valid_response = False
-    using_injector = False
     now = datetime.now()
     dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
     f.write("#"+dt_string)
@@ -216,10 +214,13 @@ def flush():
     set_est_runtime(time)
 
 def incubation():
+    valid_response = False
+    using_injector = False
     ports = []
     f.write("#incubation study")
     f.write("\n\r")
 
+             ### intake ###
     while not(valid_response):
         print("Specify experiment total injector volume in mL, range is between "+str(params.injectorVolume_min)+" and "+str(params.injectorVolume_max)+". Default is "+str(params.injectorVolume_dft))
         iT=int_check("iT", params.injectorVolume_min, params.injectorVolume_max, params.injectorVolume_dft)
@@ -239,19 +240,18 @@ def incubation():
         f.write("\n\r")
     intake = iT + fV                        # intake is total within incubation chamber, sum of injector and incbuator draw volumes
     set_intake(intake)                          # setting global to track intake volume
+    print("INTAKE is "+str(intake))
+
+            ### outtake ###
     print("Specify amount of incubation chamber volume to be used during incubation study, range is between "+str(params.incubationTestIncubatorDrawVolume_min)+" and "
-          +str(params.incubationTestIncubatorDrawVolume_max)+". Default is "+str(params.incubationTestIncubatorDrawVolume_dft)+". This number will be referred to as the OUTTAKE.") # TODO do inject first and do total volume check
+          +str(params.incubationTestIncubatorDrawVolume_max)+". Default is "+str(params.incubationTestIncubatorDrawVolume_dft)+". This number will be referred to as the OUTTAKE.")
     outtake = int_check("outtake", params.incubationTestIncubatorDrawVolume_min, params.incubationTestIncubatorDrawVolume_max, params.incubationTestIncubatorDrawVolume_dft)
-    set_outtake(outtake)
-    print("Specify amount of injector chamber volume to be used during incubation study, range is between "+str(params.incubationTestInjectorDrawVolume_min)+" and "
-          +str(params.incubationTestInjectorDrawVolume_max)+". Default is "+str(params.incubationTestInjectorDrawVolume_dft))
-    incubation_test_injector_volume = int_check("incubation_test_injector_volume", params.incubationTestInjectorDrawVolume_min, params.incubationTestInjectorDrawVolume_max, params.incubationTestInjectorDrawVolume_dft)
-    f.write("iT:"+str(incubation_test_injector_volume))
-    f.write("\n\r")
+    set_outtake(outtake)                        # setting global to track outtake volume
+    print("OUTTAKE is "+str(outtake))
+
     time = get_est_runtime() + params.fillIncubationChamberTime
     set_est_runtime(time)
-    #f.write("#TODO verify cmd exists for pump incubation chamber to HRV\n\r")#TODO
-    print("Specify amount of incubation timepoint sample to be completed, range is between "+str(params.timepointSamples_min)+
+    print("Specify amount of incubation timepoint samples to be completed, range is between "+str(params.timepointSamples_min)+
           " and "+str(params.timepointSamples_max)+". Default is "+str(params.timepointSamples_dft))
     timepoint_samples = int_check("timepoint_samples", params.timepointSamples_min, params.timepointSamples_max, params.timepointSamples_dft)
 
@@ -270,7 +270,7 @@ def incubation():
         #f.write("\r\n")
         #f.write("\r\n")
         if volume_divided_evenly:
-            incubationTestSampleVolume = intake / timepoint_samples
+            incubationTestSampleVolume = outtake / timepoint_samples
             f.write("eV:"+str(round(incubationTestSampleVolume,2)))         #sample volume
             f.write("\n\r")
         else:
@@ -279,6 +279,7 @@ def incubation():
             incubationTestSampleVolume = int_check("incubationTestSampleVolume", params.incubationTestSampleVolume_min, params.incubationTestSampleVolume_max, params.incubationTestSampleVolume_dft)
             f.write("eV:"+str(incubationTestSampleVolume))         #sample volume
             f.write("\n\r")
+            print("SUBSAMPLE is "+str(incubationTestSampleVolume))
         if time_divided_evenly:
             f.write("wS:"+str(round(time_between_samples,2)))                #wait for X seconds
             f.write("\n\r")
@@ -292,6 +293,8 @@ def incubation():
             f.write("\n\r")
             time = get_est_runtime() + timepoint_samples * params.fillFilterTime + timepoint_samples * incubationTestSampleWaitTime
             set_est_runtime(time)
+    if volume_divided_evenly:
+        print("SUBSAMPLE for all "+str(timepoint_samples)+ " is "+round(str(incubationTestSampleVolume),2))
         
         
 def wait_for_next_experiment():
