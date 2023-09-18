@@ -166,25 +166,16 @@ def init_cfg():
         f.write("\n\r")
         f.write("wA:"+str(deploy_waittime))     # wait for x minutes
         f.write("\n\r")
-    while not(valid_response):
-        print("Specify actual total injector volume in mL, range is between "+str(params.injectorVolume_min)+" and "+str(params.injectorVolume_max)+". Default is "+str(params.injectorVolume_dft))
-        tV=int_check("tV", params.injectorVolume_min, params.injectorVolume_max, params.injectorVolume_dft)
-        print("Specify actual total incubator volume in mL, range is between "+str(params.incubatorVolume_min)+" and "+str(params.incubatorVolume_max)+". Default is "+str(params.incubatorVolume_dft))
-        iV=int_check("iV", params.incubatorVolume_min, params.incubatorVolume_max, params.incubatorVolume_dft)
-        if tV > 0:
-            using_injector = True
-        if tV + iV > params.incubatorVolume_max:
-            print("The specified values for injector volume ("+str(tV)+") and incubator intake volume ("+str(iV)+") are larger than maximum allowed ("+str(params.incubatorVolume_max)+"). Please reenter.")
-        else:
-            valid_response = True
-    if using_injector:
-        f.write("fT:"+str(iV)+","+str(tV))                      #fill incubator nnnn & tt volume tracer mL #TODO don't fill here! just specify size
-        f.write("\n\r")
-    else:
-        f.write("fV:"+str(iV))                               #fill incubator nnnn mL #TODO don't fill here! just specify size
-        f.write("\n\r")
-    intake = tV + iV                        # intake is total within incubation chamber, sum of injector and incbuator draw volumes
-    set_intake(intake)                          # setting global to track intake volume
+    print("Note: this is a one-time setting recording physical parameters of the sytem. Specify physical total injector volume in mL, range is between "
+          +str(params.injectorPhysicalVolume_min)+" and "+str(params.injectorPhysicalVolume_max)+". Default is "+str(params.injectorPhysicalVolume_dft))
+    tV=int_check("tV", params.injectorPhysicalVolume_min, params.injectorPhysicalVolume_max, params.injectorPhysicalVolume_dft)
+    print("Note: this is a one-time setting recording physical parameters of the sytem. Specify physical total incubator volume in mL, range is between "
+          +str(params.incubatorPhysicalVolume_min)+" and "+str(params.incubatorPhysicalVolume_max)+". Default is "+str(params.incubatorPhysicalVolume_dft))
+    iV=int_check("iV", params.incubatorPhysicalVolume_min, params.incubatorPhysicalVolume_max, params.incubatorPhysicalVolume_dft)
+    f.write("tV:"+str(tV))                  # specify physical volume of instrument injection chamber
+    f.write("\n\r")
+    f.write("iV:"+str(iV))                  # specify physical volume of instrument incubation chamber
+    f.write("\n\r")
     f.write("wHp")                          # go to HOME port to start
     f.write("\n\r")
             
