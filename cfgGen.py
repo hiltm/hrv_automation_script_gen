@@ -102,6 +102,13 @@ def set_intake(x):
 def get_intake():
      return intake
 
+def set_outtake(x):
+     global outtake
+     outtake = x
+
+def get_outtake():
+     return outtake
+
 def set_est_runtime(x):
     global est_runtime
     est_runtime = x
@@ -225,8 +232,9 @@ def incubation():
     f.write("fV:"+str(get_intake()))        # fill incubator chamber to total incubator volume
     f.write("\n\r")
     print("Specify amount of incubation chamber volume to be used during incubation study, range is between "+str(params.incubationTestIncubatorDrawVolume_min)+" and "
-          +str(params.incubationTestIncubatorDrawVolume_max)+". Default is "+str(params.incubationTestIncubatorDrawVolume_dft)+". This number will be referred to as the OUTTAKE.")
-    intake = int_check("intake", params.incubationTestIncubatorDrawVolume_min, params.incubationTestIncubatorDrawVolume_max, params.incubationTestIncubatorDrawVolume_dft)
+          +str(params.incubationTestIncubatorDrawVolume_max)+". Default is "+str(params.incubationTestIncubatorDrawVolume_dft)+". This number will be referred to as the OUTTAKE.") # TODO do inject first and do total volume check
+    outtake = int_check("outtake", params.incubationTestIncubatorDrawVolume_min, params.incubationTestIncubatorDrawVolume_max, params.incubationTestIncubatorDrawVolume_dft)
+    set_outtake(outtake)
     print("Specify amount of injector chamber volume to be used during incubation study, range is between "+str(params.incubationTestInjectorDrawVolume_min)+" and "
           +str(params.incubationTestInjectorDrawVolume_max)+". Default is "+str(params.incubationTestInjectorDrawVolume_dft))
     incubation_test_injector_volume = int_check("incubation_test_injector_volume", params.incubationTestInjectorDrawVolume_min, params.incubationTestInjectorDrawVolume_max, params.incubationTestInjectorDrawVolume_dft)
@@ -283,6 +291,10 @@ def wait_for_next_experiment():
           " and "+str(params.experimentWaitTime_max)+". Default is "+str(params.experimentWaitTime_dft))
     experiment_wait_time=int_check("experiment_wait_time", params.experimentWaitTime_min, params.experimentWaitTime_max, params.experimentWaitTime_dft)
     f.write("#POST EXPERIMENT")
+    f.write("\n\r")
+    f.write("#INTAKE "+str(get_intake())+" mL")      #report intake volume
+    f.write("\n\r")
+    f.write("#OUTTAKE "+str(get_outtake())+" mL")    #report outtake volume
     f.write("\n\r")
     f.write("wHp")                              #wait for home port
     f.write("\n\r")
