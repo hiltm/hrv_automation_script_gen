@@ -147,6 +147,10 @@ def init_cfg():
     dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
     f.write("#"+dt_string)
     f.write("\n\r")
+    f.write("VB:1")                             # set verbose mode high to log all that happens, hard-coding on
+    f.write("\n\r")
+    f.write("TIM")                             # set Mclane time from PIC
+    f.write("\n\r")
     print("Specify wait time in minutes to allow for instrument deployment, range is between "+str(params.deploymentWaitTime_min)+
           " and "+str(params.deploymentWaitTime_max)+". Default is "+str(params.deploymentWaitTime_dft))
     deploy_waittime = int_check("flush_waittime", params.deploymentWaitTime_min, params.deploymentWaitTime_max, params.deploymentWaitTime_dft)
