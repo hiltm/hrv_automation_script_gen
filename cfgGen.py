@@ -219,9 +219,26 @@ def incubation():
     ports = []
     f.write("#incubation study")
     f.write("\n\r")
-    print("The incubator chamber will be filled to the total incubator volume")
-    f.write("fV:"+str(get_intake()))        # fill incubator chamber to total incubator volume
-    f.write("\n\r")
+
+    while not(valid_response):
+        print("Specify experiment total injector volume in mL, range is between "+str(params.injectorVolume_min)+" and "+str(params.injectorVolume_max)+". Default is "+str(params.injectorVolume_dft))
+        iT=int_check("iT", params.injectorVolume_min, params.injectorVolume_max, params.injectorVolume_dft)
+        print("Specify experiment total incubator volume in mL, range is between "+str(params.incubatorVolume_min)+" and "+str(params.incubatorVolume_max)+". Default is "+str(params.incubatorVolume_dft))
+        fV=int_check("fV", params.incubatorVolume_min, params.incubatorVolume_max, params.incubatorVolume_dft)
+        if iT > 0:
+            using_injector = True
+        if iT + fV > params.incubatorVolume_max:
+            print("The specified values for injector volume ("+str(iT)+") and incubator intake volume ("+str(fV)+") are larger than maximum allowed ("+str(params.incubatorVolume_max)+"). Please reenter.")
+        else:
+            valid_response = True
+    if using_injector:
+        f.write("fT:"+str(fV)+","+str(iT))                      #fill incubator nnnn & tt volume tracer mL
+        f.write("\n\r")
+    else:
+        f.write("fV:"+str(fV))                               #fill incubator nnnn mL 
+        f.write("\n\r")
+    intake = iT + fV                        # intake is total within incubation chamber, sum of injector and incbuator draw volumes
+    set_intake(intake)                          # setting global to track intake volume
     print("Specify amount of incubation chamber volume to be used during incubation study, range is between "+str(params.incubationTestIncubatorDrawVolume_min)+" and "
           +str(params.incubationTestIncubatorDrawVolume_max)+". Default is "+str(params.incubationTestIncubatorDrawVolume_dft)+". This number will be referred to as the OUTTAKE.") # TODO do inject first and do total volume check
     outtake = int_check("outtake", params.incubationTestIncubatorDrawVolume_min, params.incubationTestIncubatorDrawVolume_max, params.incubationTestIncubatorDrawVolume_dft)
