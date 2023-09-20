@@ -204,6 +204,8 @@ def flush():
         f.write("\n")
         f.write("eP")                       #completely empty incubator
         f.write("\n")
+        f.write("nPO:1")                    #go to NULL port 1
+        f.write("\n")
         f.write("wS:"+str(1))               #wait for 1 seconds
         f.write("\n")
         f.write("fV:"+str(flush_amount))     #flush amount
@@ -240,9 +242,13 @@ def incubation():
         else:
             valid_response = True
     if using_injector:
+        f.write("NPO:1")                                    # go to NULL port 1
+        f.write("\n")
         f.write("fT:"+str(fV)+","+str(iT))                      #fill incubator nnnn & tt volume tracer mL
         f.write("\n")
     else:
+        f.write("NPO:1")                                    # go to NULL port 1
+        f.write("\n")
         f.write("fV:"+str(fV))                               #fill incubator nnnn mL 
         f.write("\n")
     intake = iT + fV                        # intake is total within incubation chamber, sum of injector and incbuator draw volumes
