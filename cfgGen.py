@@ -149,6 +149,7 @@ def yes_or_no():
             
 def init_cfg():
     f.write("#Init config")
+    f.write("\n")
     now = datetime.now()
     dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
     f.write("#"+dt_string)
@@ -203,9 +204,11 @@ def flush():
         f.write("\n")
         f.write("eP")                       #completely empty incubator
         f.write("\n")
-        f.write("rP:"+str(flush_cycles))    #loop flush_cycles times
+        f.write("wS:"+str(1))               #wait for 1 seconds
         f.write("\n")
         f.write("fV:"+str(flush_amount))     #flush amount
+        f.write("\n")
+        f.write("wHp")                          # go to HOME port
         f.write("\n")
         f.write("wS:"+str(flush_waittime))   #wait for flush_waittime seconds
         f.write("\n")
