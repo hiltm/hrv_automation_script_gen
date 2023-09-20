@@ -148,6 +148,7 @@ def yes_or_no():
     return var
             
 def init_cfg():
+    f.write("#Init config")
     now = datetime.now()
     dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
     f.write("#"+dt_string)
@@ -270,8 +271,10 @@ def incubation():
 
     ports = port_selection(timepoint_samples)
     for x in range(timepoint_samples):
-        #f.write("\r\n")
-        #f.write("\r\n")
+        f.write("#Timepoint sample "+str(x+1))
+        f.write("\r")
+        f.write("pO:"+str(ports[x]))    #go to PORT X
+        f.write("\r")
         if volume_divided_evenly:
             incubationTestSampleVolume = outtake / timepoint_samples
             f.write("eV:"+str(round(incubationTestSampleVolume,2)))         #sample volume
