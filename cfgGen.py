@@ -192,7 +192,7 @@ def flush():
     for x in range(flush_cycles):
         f.write("#Flush cycle "+str(x+1))
         f.write("\n")
-        print("Specify wait time in seconds between flush cycles for flush cycle "+str(x)+", range is between "+str(params.flushWaittime_min)+
+        print("Specify wait time in seconds between flush cycles for flush cycle "+str(x+1)+", range is between "+str(params.flushWaittime_min)+
               " and "+str(params.flushWaittime_max)+". Default is "+str(params.flushWaittime_dft))
         flush_waittime = int_check("flush_waittime", params.flushWaittime_min, params.flushWaittime_max, params.flushWaittime_dft)
         print("Specify flush amount in mL, range is between "+str(params.flushAmount_min)+" and "+str(params.flushAmount_max)+". Default is "+str(params.flushAmount_dft))
@@ -321,7 +321,7 @@ def incubation():
         
         
 def wait_for_next_experiment():
-    print("Specify how long to wait until the start of the next experiment. This can be a long time. Range is between "+str(params.experimentWaitTime_min)+
+    print("Specify how long in minutes to wait until the start of the next experiment. This can be a long time. Range is between "+str(params.experimentWaitTime_min)+
           " and "+str(params.experimentWaitTime_max)+". Default is "+str(params.experimentWaitTime_dft))
     experiment_wait_time=int_check("experiment_wait_time", params.experimentWaitTime_min, params.experimentWaitTime_max, params.experimentWaitTime_dft)
     f.write("#POST EXPERIMENT")
