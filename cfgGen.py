@@ -1,5 +1,4 @@
 ###TODOS####### TODO
-#put in handling for verifying that subscample volume doesn't exceed OUTTAKE
 #put in handling to empty and zero chamber after an experiment post_experiment_zero
 # improve time estimation
 
@@ -261,6 +260,7 @@ def incubation():
     outtake = int_check("outtake", params.incubationTestIncubatorDrawVolume_min, params.incubationTestIncubatorDrawVolume_max, params.incubationTestIncubatorDrawVolume_dft)
     set_outtake(outtake)                        # setting global to track outtake volume
     print("OUTTAKE is "+str(outtake))
+    remaining_chamber_volume = outtake
 
     time = get_est_runtime() + params.fillIncubationChamberTime
     set_est_runtime(time)
@@ -280,6 +280,7 @@ def incubation():
 
     ports = port_selection(timepoint_samples)
     for x in range(timepoint_samples):
+        confirm_remaining_chamber_vol = False
         f.write("#Timepoint sample "+str(x+1))
         f.write("\r")
         f.write("pO:"+str(ports[x]))    #go to PORT X
@@ -289,12 +290,19 @@ def incubation():
             f.write("eV:"+str(round(incubationTestSampleVolume,2)))         #sample volume
             f.write("\n")
         else:
-            print("Specify amount of sample volume to pump through PORT  "+str(ports[x])+" ,range is between "+str(params.incubationTestSampleVolume_min)+
-                  " and "+str(params.incubationTestSampleVolume_max)+". Default is "+str(params.incubationTestSampleVolume_dft))
-            incubationTestSampleVolume = int_check("incubationTestSampleVolume", params.incubationTestSampleVolume_min, params.incubationTestSampleVolume_max, params.incubationTestSampleVolume_dft)
-            f.write("eV:"+str(incubationTestSampleVolume))         #sample volume
-            f.write("\n")
-            print("SUBSAMPLE is "+str(incubationTestSampleVolume))
+            print("Remaining incubation chamber volume to use for samples is "+str(remaining_chamber_volume)+" mL")
+            while not(confirm_remaining_chamber_vol):
+                print("Specify amount of sample volume to pump through PORT  "+str(ports[x])+" ,range is between "+str(params.incubationTestSampleVolume_min)+
+                    " and "+str(params.incubationTestSampleVolume_max)+". Default is "+str(params.incubationTestSampleVolume_dft))
+                incubationTestSampleVolume = int_check("incubationTestSampleVolume", params.incubationTestSampleVolume_min, params.incubationTestSampleVolume_max, params.incubationTestSampleVolume_dft)
+                if incubationTestSampleVolume > remaining_chamber_volume:
+                    print("Sample volume specified exceeds remaining incubation chamber volume. Max allowed volume is "+str(remaining_chamber_volume)+". Please reenter.")
+                else:
+                    confirm_remaining_chamber_vol = True
+                    remaining_chamber_volume = remaining_chamber_volume - incubationTestSampleVolume
+                    f.write("eV:"+str(incubationTestSampleVolume))         #sample volume
+                    f.write("\n")
+                    print("SUBSAMPLE is "+str(incubationTestSampleVolume))
         if time_divided_evenly:
             f.write("wS:"+str(round(time_between_samples,2)))                #wait for X seconds
             f.write("\n")
