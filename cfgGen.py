@@ -282,9 +282,9 @@ def incubation():
     for x in range(timepoint_samples):
         confirm_remaining_chamber_vol = False
         f.write("#Timepoint sample "+str(x+1))
-        f.write("\r")
+        f.write("\n")
         f.write("pO:"+str(ports[x]))    #go to PORT X
-        f.write("\r")
+        f.write("\n")
         if volume_divided_evenly:
             incubationTestSampleVolume = outtake / timepoint_samples
             f.write("eV:"+str(round(incubationTestSampleVolume,2)))         #sample volume
