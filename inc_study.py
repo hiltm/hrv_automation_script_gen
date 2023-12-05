@@ -178,8 +178,14 @@ def init_cfg():
     f.write("wHp")                          # go to HOME port to start
     f.write("\n")
 
-def post_experiment_zero():
-    print("todo")   # TODO
+def zero_chamber():
+    print("#zero chamber")
+    f.write("gSp")                          # get SID prompt
+    f.write("\n")
+    f.write("eP")                           # empty chamber
+    f.write("\n")
+
+
             
 def flush():
     flush_waittime = 0                      # pre-defining
@@ -385,6 +391,7 @@ with open(filename, "w") as f:
         print("Between Experiment Parameters")
         print("#####################################")
         wait_for_next_experiment()
+        zero_chamber()
         print(" ")
     config_summary()
     f.write("eNd")                              #end of script
