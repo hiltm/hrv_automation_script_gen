@@ -1,4 +1,5 @@
 #### PARAMETER LIMITS ####
+#### INCUBATION STUDY ####
 ## initial setup ##
 deploymentWaitTime_min = 0 #min
 deploymentWaitTime_max = 240 #min
@@ -56,3 +57,14 @@ emptyIncubationChamberTime = 30 #seconds
 fillIncubationChamberTime = 120 #seconds
 moveToPort = 60 #seconds
 fillFilterTime = 60 #seconds
+
+
+#### POST-DIVE CLEANING ####
+## wait to begin cleaning ##
+cleaningWaitTime_min = 0 #min
+cleaningWaitTime_max = 60 #min
+cleaningWaitTime_dft = 0 #min
+## wait for next study ##
+rinseCycleWaitTime_min = 0 #minutes
+rinseCycleWaitTime_max = 5 #minutes
+rinseCycleWaitTime_dft = 1 #minutes

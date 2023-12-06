@@ -10,3 +10,5 @@ print("3 - post-swim clean script")
 selection = input(": ")
 if selection == '1':
     subprocess.run(["python", "inc_study.py"])
+elif selection == '2':
+    subprocess.run(["python", "post_swim_clean.py"])
