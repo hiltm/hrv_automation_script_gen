@@ -1,0 +1,1455 @@
+//***********************************************
+//*	        Arctic Winch III_2007        	*
+//*                    by                       *
+//*             Steve Liberatore 		*
+//*						*
+//*  Woods Hole Oceanographic Institution	*
+//*      Woods Hole, Ma  02543-1047		*
+//*						*
+//*         COPYRIGHT (c) 2004 WHOI		*
+//***********************************************
+//
+//     This program controls a winch designed to periodically release
+// a science package and then to retrieve it after a programmed interval.
+// If for some reason the line is not able to be completely let out,
+// the program assumes the top station has been reached, i.e., the science
+// package has bumped into the bottom of the ice cover or it is at the surface.
+// Upon retrieval, if the line has parted, the winch will shutdown after
+// an attempt has been made to retrieve a preset length of line.  The
+// program start date and time, the ascent interval, transmit schedule
+// and the experiment end date and time may be programmed by entering a
+// single line. The real time clock is set in the same manner. A line of
+// data is recorded during each cycle. The start of an ascent, surface time,
+// start of a dive, bottom time as well as motor current, battery voltage,
+// on the way up as well as on the way down plus line out and line in
+// as hall counts are logged.
+//
+//03/16/2004 10:37:57 Adding surface interval
+//03/17/2004 10:02:40 Adding wave follow
+//03/18/2004 13:44:21 Adding wave_follow command
+//03/23/2004 14:41:25 Saving count out and count in
+//03/24/2004 09:34:43 Updating comments
+//03/29/2004 09:22:07 Coding to read new data file
+//04/08/2004 14:19:13 Bench testing
+//04/28/2004 16:16:27 Changing wave follow current to .70 Amps
+//05/18/2004 15:16:08 Since wind in is cw, wave follow is reversed.
+//05/19/2004 08:48:11 Adding the load drum command
+//05/29/2004 10:15:00 Adding low voltage cutoff
+//01/18/2005 15:37:05 Adding provisions for ICL
+//04/13/2005 09:27:01 Updating wave follow and load
+//04/14/2005 14:34:46 Adding AD-6 to measure switched power.
+//04/20/2005 15:14:13 Decreasing the motor lock upn time
+//04/26/2005 11:13:29 Changing wait to hyb to 120 seconds per Ed
+//05/03/2005 10:51:08 Removing provisions for ICL per Ed
+//05/16/2005 14:40:57 Special ver. for dock test, Set for
+//                    Alakline battery and 2 meteres minimum line out
+//05/19/2005 12:41:05 Fixed a bug in surface routine
+//05/19/2005 14:27:52 No longer checking minimum current during dive
+//05/25/2005 09:48:47 Now looking for at least 1 amp while diving
+//12/13/2006 13:45:41 Adding ICL mods to hardware and software.
+//
+	MODEL 800		// declare tt model 8
+
+//These are the mooring dependant variables.
+
+//      Arctic Winch, II + III (Fiamma)
+
+	maximum_pay_out = 31680		// hall count for 100 meters
+	minimum_pay_out = 12621		// hall count for 35 meters
+	maximum_haul_in = 38500		// hall count for 110 meters
+	minimum_e! = 26.0		// battery cutoff voltage for
+					// litium pack = 3.25 Volts/cell
+//
+//      Arctic Winch, II + III (Bob)
+
+//	maximum_pay_out = 12621		// hall count for 35 meters
+//	minimum_pay_out = 11000		// hall count for 40 meters
+//	maximum_haul_in = 26400		// hall count for 110 meters
+//	minimum_e! = 24.0		// battery cutoff voltage Lithium pack
+//
+//	Essuarine Winch II
+//
+//	maximum_pay_out	= 17000		// hall count for 60 meters
+//	minimum_pay_out = 0		// 5000 = hall count for 10 meters, not used
+//	maximum_haul_in = 26400		// hall count for 70 meters
+//	minimum_e! = 14.5		// battery cutoff voltage Alkaline pack
+
+//	Dock Test
+
+//	maximum_pay_out =  9000         // about 20 meters
+//	minimum_pay_out =  220          // about 1 drum rev.
+//	maximum_haul_in = 13000		// about 30 meters
+//	minimum_e! = 16.0		// 35 Volt alkaline pack, 60 cells
+
+//	EXTENSION HybAt3V		// and extensions
+	EXTENSION TPUGetTCR1
+	EXTENSION ADon,ADoff
+	EXTENSION KbFlush,KbHit,KbChar
+//	HybAt3V(0)	        // Disable 3 volt hyb
+
+// The I/O structure ...
+
+//	I/O 0	Reserved
+//	I/O 1	(wake)		// High to surface
+//	I/O 2	(SDO latch)	// AD840010 /CS
+//	I/O 3			// Motor power, ON when high
+//	I/O 4	(count/period)	// Hall 1 for RPM
+//	I/O 5	(SDO clock)	// AD840010 Clk
+//	I/O 6	(Tone)		// mechanical, disengaged when high
+//	I/O 7			// Motor disable, high to freewheel
+//	I/O 8 	(SDO)		// AD840010 SDI
+
+//	AD-0	Battery voltage	// Voltage in Volts = AD0 * 11
+//	AD-1	Motor current	// Current in Amps  = AD1 * 1.221
+//	AD-2	Stop		// Stop motor if AD2 > 1.00 Volts
+//	AD-3	Dive		// Dive if AD3 > 1.00 Volts
+//	AD-4	CW/CCW		// Direction to be detrmined
+//	AD-5	Motion		// Shaft rotating if high
+//	AD-6	Sw. Pwr.	// Switched motor voltage
+
+// Declare some integer variables
+	ad_avg = 5		// A/D averages this many samples
+	Dx = 0			// AD8400 serial data
+	motion = 0		// 1 if motor shaft rotating
+	now = 0			// ?(0) variable = current second
+	flag = 0		// global
+	n = 0			// global loop counter #1
+	m = 0			// global counter #2
+	a = 0			// loop counter used by the A/D
+	ccw = 0			// 1 if rotating clockwise
+	inertia = 500		// the inertia delay times seconds * .01
+
+	haul_count = 0		// the diff. of haul_out and haul-in counts
+	haul_in_count = 0	// the haulin counter
+	pay_out_count = 0	// the pay out counter
+	surface_interval = 1440 // interval in minutes between ascents
+	surface_time = 1	// time on the surface
+	aa = 1			// transmit every aa ascents
+	ascent_number = 0	// ascent number
+//	dfpoint = 2		// data file pointer (unititialized)
+//	record_count = 0	// 2 byte record counter    "
+	record_pointer = 0	// and its pointer
+	avg_count = 0		// the sw_pwr average count
+	low_voltage_flag = 0	// set when voltage falls below 24 volts
+	bench_test = 0		// used by cycle test, command 8
+
+// Declare floats
+
+	p! = 0			// the period variable
+	supply_e! = 0		// battery voltage
+	dive_e! = 0		// supply voltage while hauling in
+	load_drum_i = 0		// drive current while loading drum
+	drive_i! = 0		// dive current
+	dive_i! = 0		// motor current while hauling in
+      	cw_ccw_e! = 0		// direction indicator
+	motion_e! = 0		// used to detect rotation
+	volts! = 0		// common A/D measurment result
+	command_i! = 0		// commanded torque
+	x! = 0			// period count
+	rpm! = 0		// motor shaft RPM
+	elapsed! = 0		// seconds elapsed since "now" set to ?(0)
+	sw_pwr! = 0		// switched motor power
+	avg_sw_pwr! = 0		// initialize average
+
+
+//
+// This float sets the haul in current.  For a 55::1 gear box
+// some typical values are ... These values are for the Gateway Winch.
+//
+
+//        Current (amps)        Straight line pull in pounds at stall.
+//
+//          0                         0
+//          .25                       1.5
+//          .50                       2.0
+//          .75                       7.5
+//         1.0                        12.0
+//         1.25                       16.0
+//         1.50                       20.0
+//         1.75                       25.0
+//         2.0                        28.0
+//         2.25                       33.0
+//         2.50                       36.5
+//
+
+	haul_in_i! = 4.5	// peak command_i to haul in (amps)
+        wave_i! =  .70		// surface drive current
+	load_drum_i = 1.0	// loading the drum tension
+
+
+
+//
+//                Declaring arrays here
+//
+// A normal year
+
+	DIM cal_day1(13)
+	DIM cal_mon1(13)
+
+	cal_day1(0) = 0 : cal_day1(1) = 0
+	cal_day1(2) = 31 : cal_day1(3) = 59
+	cal_day1(4) = 90 : cal_day1(5) = 120
+	cal_day1(6) = 151 : cal_day1(7) = 181
+	cal_day1(8) = 212 : cal_day1(9) = 243
+	cal_day1(10) = 273 : cal_day1(11) = 304
+	cal_day1(12) = 334
+
+	cal_mon1(0) = 0 : cal_mon1(1) = 31
+	cal_mon1(2) = 28 : cal_mon1(3) = 31
+	cal_mon1(4) = 30 : cal_mon1(5) = 31
+	cal_mon1(6) = 30 : cal_mon1(7) = 31
+	cal_mon1(8) = 31 : cal_mon1(9) = 30
+	cal_mon1(10) = 31 : cal_mon1(11) = 30
+	cal_mon1(12) = 31
+
+// A leap year
+
+	DIM cal_day2(13)
+	DIM cal_mon2(13)
+
+	cal_day2(0) = 0 : cal_day2(1) = 0
+	cal_day2(2) = 31 : cal_day2(3) = 60
+	cal_day2(4) = 91 : cal_day2(5) = 121
+	cal_day2(6) = 152 : cal_day2(7) = 182
+	cal_day2(8) = 213 : cal_day2(9) = 244
+	cal_day2(10) = 274 : cal_day2(11) = 305
+	cal_day2(12) = 335
+
+	cal_mon2(0) = 0 : cal_mon2(1) = 31
+	cal_mon2(2) = 29 : cal_mon2(3) = 31
+	cal_mon2(4) = 30 : cal_mon2(5) = 31
+	cal_mon2(6) = 30 : cal_mon2(7) = 31
+	cal_mon2(8) = 31 : cal_mon2(9) = 30
+	cal_mon2(10) = 31 : cal_mon2(11) = 30
+	cal_mon2(12) = 31
+
+// General purpose time and date arrays
+
+	DIM start_date_time(7)	// month/day/year hour:minute:second
+				// and millennium minute
+	DIM stop_date_time(7)	// month/day/year hour:minute:second
+				// and millennium minute
+	DIM start_stop(6)	// month/day/year hour:minute:second
+
+// Define time and schedule related flags
+
+	timSet = 0              // time set flag initially cleared-
+	time_ok = 0
+	date_ok = 0
+	ascent_set = 0
+	is_rtc_leap = 0
+	is_scd_leap = 0
+
+// Time and schedule related strings
+
+	sx$ = "0"
+	time_date_$ = "0"
+	ans$ = "n"
+
+// First start to toggle the maxon's power so that in hyb mode
+// we draw the least current.
+
+start:	PSET 3			// release brake, controller on
+	GOSUB set_i_now		// will be set to 0
+	PSET 7			// enable maxon controller
+	PSET 6			// dynamic brake on
+
+// Now preset the I/O which will shut down the maxon, completing the toggle.
+
+	PCLR 0,1,3,4,5,6,7,8	// Preset the output lines
+	PSET 2			// to lowest power condition
+	PCLR 9,10,11,12,13,15,16
+	ADoff()
+
+//
+// The error vector
+//
+	ONERR an_error,error	// the error vector
+//
+// Any data?
+//
+	IFF valid_data = 1234567890
+	    PRINT : PRINT
+	    PRINT "DFMAX = ",DFMAX,"  dfpoint = ",dfpoint
+	ENDIF
+
+// Keyboard command input and processing
+
+display_commands:
+//	PRINT :GOSUB getcmnd :PRINT     // prompt the user for a command, verbose.
+	PRINT :GOSUB nxt_cmnd           // the PC method.
+
+tst_it:
+	IF (Cmnd = 1)  GOSUB display_status
+	IF (Cmnd = 2)  GOSUB surface_test
+	IF (Cmnd = 3)  GOSUB dive
+	IF (Cmnd = 4)  GOTO run_sched
+        IF (Cmnd = 5)  GOTO freewheel
+	IF (Cmnd = 6)  GOSUB change_i
+	IF (Cmnd = 7)  GOSUB shut_down_motor
+	IF (Cmnd = 8)  GOSUB cycles
+	IF (Cmnd = 9)  GOSUB line_time_set
+	IF (Cmnd = 10) GOSUB line_sched_set
+	IF (Cmnd = 11) GOSUB read_sched
+	IF (Cmnd = 12) GOSUB dump_data
+	IF (Cmnd = 13) GOTO snooz
+	IF (Cmnd = 14) GOTO load_drum
+	IF (Cmnd = 999) GOSUB OH_DAMN
+	GOTO display_commands
+
+getcmnd:
+	CBREAK	// reset the break vector
+	PRINT : PRINT "(Arctic_Winch_III_2007) 12/13/2006 13:45:41" :PRINT
+	PRINT "1 .... Display A/D            2 .... Surface and wave follow for 1 minute"
+	PRINT "3 .... Run to bottom          4 .... Run Program"
+	PRINT "5 .... Freewheel (out)        6 .... Change drive current"
+	PRINT "7 .... Motor off, set brake   8 .... Cycle, in and out"
+	PRINT	// The scheduler commands follow:
+	PRINT "9 .... Enter time, use format mm/dd/yyyy hh:mm:ss" : PRINT
+	PRINT "10 ... ENTER the schedule, format as follows ...." : PRINT
+	PRINT "       mm/dd/yyyy hh:mm:ss---mm/dd/yyyy hh:mm:ss---mmmm mmmm aa"
+	PRINT "       Start date and time   Stop date and time"
+	PRINT "       1st mmmm = Ascent interval in minutes, must be >5 "
+	PRINT "       2nd mmmm = Transmit Surface time in minutes, may be 0000"
+	PRINT "       aa = Transmit every aa cycles, may be 00"
+	PRINT
+	PRINT "11 ... Display time and schedule" : PRINT
+	PRINT "12 ... Dump cycle data"
+	PRINT "13 ... Enter low power mode, wake with ALT K"
+	PRINT "14 ... Load winch drum, any charater to exit." : PRINT
+nxt_cmnd:
+	INPUT "COMMAND? "Cmnd;             // get a numeric input
+	IFF (Cmnd >= 1 & Cmnd <= 14)       // it's real
+	     PRINT
+	     RETURN
+	ENDIF
+	IF Cmnd = 999 RETURN		// the hidden command
+	PRINT :PRINT "Command ",Cmnd," not implemented!"
+	PRINT : GOSUB getcmnd		// prompt for a real command
+	GOTO tst_it
+//
+//
+// -------------------------------------------------------------
+//    ..... command 1 ......
+//
+// Here we digitize and diplay all chans.
+//
+display_status:
+	title_out:
+	PRINT " Supply Voltge   Drive current  ";
+	PRINT " CW/CCW   Motion   rpm"
+	PRINT
+
+	FOR n = 1 TO 18
+	    GOSUB read_rpm
+	    GOSUB read_ad_0 : GOSUB read_ad_1
+	    GOSUB read_ad_4 : GOSUB read_ad_5
+	    PRINT "      ",#3.2F,supply_e,"           ",#3.2F,drive_i;
+	    PRINT "      ",#3.2F,cw_ccw_e,"     ",#3.2F,motion_e;
+	    PRINT "   ",#3.2F,rpm
+	NEXT n
+	INPUT "Continue? (Y/N) "ans$
+	IF ans$ = "n" RETURN : IF ans$ = "N" RETURN
+        GOTO title_out
+	RETURN
+//
+// We have a 12 bit A/D whose reference is 4.096 volts
+// therefore, each bit represents 1 mV.
+//
+read_ad_0:	// voltage divider = 11::1
+	volts = 0
+	FOR a = 1 TO ad_avg
+            volts = volts + (CHAN(0)/16)
+	NEXT a
+	supply_e = ((volts/ad_avg)*11e-3)
+//
+// The digitizer has a 12 bit resolution and its reference is
+// connected internally to the 4.096 volt reference.
+// Motor current must pass through a .1 Ohm resistor.
+// The voltage dropped across the resistor is multiplied by
+// 8.264 so 4.956 amps is full scale therefore, each bit has
+// a weight of 1.210 mA.
+//
+
+read_ad_1:
+	volts = 0
+	FOR a= 1 TO ad_avg
+            volts = volts + (CHAN(1)/16)
+	NEXT a
+	drive_i = (volts/ad_avg)*1.210e-3
+	RETURN
+read_ad_4:
+check_direction:
+	volts = 0	// voltage divider = 2::1
+	ccw = 0
+	FOR a = 1 TO ad_avg
+            volts = volts + (CHAN(4)/16)
+	NEXT a
+	cw_ccw_e = ((volts/ad_avg)/1000)*2
+	IF cw_ccw_e > 1 ccw = 1
+	RETURN
+read_ad_5:
+	volts = 0	// voltage divider = 2::1
+	FOR a = 1 TO ad_avg
+            volts = volts + (CHAN(5)/16)
+	NEXT a
+	motion_e = ((volts/ad_avg)/1000)*2
+	RETURN
+read_ad_6:	// voltage divider = 11::1
+	volts = 0
+	FOR a = 1 TO ad_avg
+            volts = volts + (CHAN(0)/16)
+	NEXT a
+	sw_pwr = ((volts/ad_avg)*11e-3)
+	RETURN
+
+//
+//
+// -------------------------------------------------------------
+//    ..... command 2 ......
+//
+
+// This command simply executes a short profile cycle.  The line will be
+// retrieved precisely one minute after the brake is released.
+
+surface_test:
+	IFF timSet = 0
+            PRINT " Set the clock first!!"
+            GOTO display_commands
+        ENDIF
+        surface_time = 1
+	GOSUB wait_sec0		//sysnc to the top of a minute
+	GOSUB get_time
+	dive_minute = milnm_min + surface_time
+	GOSUB surface
+	GOSUB wave_follow
+	GOSUB dive
+	RETURN
+//-----------------------------------------------------------------------
+surface:
+	IFF dfpoint >= DFMAX-100 | dfpoint < 0
+	    PRINT :PRINT "1) Out of memory, skipping STORE instructions!!"
+	    GOTO surfacing
+	ENDIF
+	GOSUB store_mdyhms	// store ascent time
+surfacing:
+	pay_out_count = 0
+	COUNT pay_out_count	// keep track of line out
+	PSET 3			// controller on
+	PSET 7			// enable maxon controller
+	command_i = 0		// zero pull
+	GOSUB set_i_now
+	PSET 6			// disable brake
+	PRINT " Delay for inertia = ",inertia/100, " seconds."
+	SLEEP 0 : SLEEP inertia
+
+wait_for_surface:
+	flag = 0 : ice_flag = 0	// initialize flags
+	PRINT : PRINT " Surfacing."
+	avg_sw_pwr = 0		// initialize average
+	avg_count = 0		// and the counter
+
+surface_loop:
+	GOSUB read_ad_6
+	avg_count = avg_count + 1
+	avg_sw_pwr = avg_sw_pwr + sw_pwr
+	sw_pwr = avg_sw_pwr/avg_count
+	PRINT pay_out_count,"  ",#3.2F,sw_pwr
+	GOSUB check_motion     	// are we moving?
+	IF motion = 1 flag = 0
+	IFF motion = 0
+            flag = flag + 1
+	    PRINT flag
+            SLEEP 0 : SLEEP 100  // give it a 5 seconds
+	ENDIF
+	IFF flag >= 5
+            print "flag = ",flag
+//
+// Here we check for ice cover, the esuarine winch has the minimum_pay_out
+// variable set to 0 so the ice flag will never be set to 1
+//
+	    IFF pay_out_count < minimum_pay_out
+                PRINT : PRINT " Bumped my head!!"
+	        ice_flag = 1
+	    ENDIF
+	    IFF dfpoint >= DFMAX-100 | dfpoint < 0
+	        PRINT :PRINT "2) Out of memory, skipping STORE instructions!!"
+		RETURN
+	    ENDIF
+	    PRINT " At the surface!"
+	    GOSUB store_mdyhms	// store the time
+	    out_count = pay_out_count	// save for engineering data
+	    RETURN
+	ENDIF
+	IFF pay_out_count >= maximum_pay_out
+            PRINT " Maximum line out!"
+            IFF dfpoint >= DFMAX-100 | dfpoint < 0
+	        PRINT :PRINT "3) Out of memory, skipping STORE instructions!!"
+		RETURN
+	    ENDIF
+	    GOSUB store_mdyhms	// store the time
+            out_count = pay_out_count	// save for engineering data
+	    RETURN
+	ENDIF
+  	GOTO surface_loop
+//
+// Two subroutines used while on the surface
+//
+check_dive_minute:
+	dive_flag = 0	// assume not time to dive
+	GOSUB get_time
+	IF milnm_min >= dive_minute dive_flag = 1
+	RETURN
+
+check_motion:
+	motion = 0	// assume no motion
+	IF chan(5) > 10000 motion = 1
+	RETURN
+//--------------------------------------------------------------
+// Here we go into wave following mode.
+//
+wave_follow:
+	running_count = pay_out_count
+	temp_count = pay_out_count
+wave_follow_1:
+	PRINT running_count
+	GOSUB light_pull	// pull on the line lightly
+	SLEEP 0 : SLEEP 5
+wave_follow_2:
+ 	GOSUB check_dive_minute	// time to dive?
+	IFF dive_flag = 1
+	    PRINT " Time to dive."
+	    out_count = running_count
+            RETURN
+	ENDIF
+	IFF running_count >= maximum_pay_out
+            PRINT : PRINT "Maximum length of line is out!"
+	    PRINT
+	    out_count = running_count
+	    GOSUB shut_down_motor
+	    PRINT " Waiting for milnm_min = ",dive_minute," to dive."
+wave_follow_3:
+             GOSUB check_dive_minute
+	    IF dive_flag = 1 RETURN
+            GOTO wave_follow_3
+	ENDIF
+
+//
+// This can be confusing!  If the line spools from the top of the drum,
+// the drum must turn ccw to haul in.  The ccw signal is high while the drum is turning ccw.
+// If the line spools from the bottom of the drum then the drum must turn cw to haul in. The ccw
+// signal will be low while the drum is rotating cw.  The maim controller's direction pin must
+// be tied low to haul in if the line spools from the top.
+//
+//
+        GOSUB check_direction
+	IFF chan(5) > 10000		// spooling in
+            IFF ccw = 0 	        // this test if line spools from bottom
+	  //IFF ccw = 1 		// this test if line spools from top
+	        running_count = running_count + (temp_count - pay_out_count)
+	        temp_count = pay_out_count
+	        PRINT running_count
+                GOTO wave_follow_2 // line spools from top
+            ENDIF
+	ENDIF
+	GOSUB coast			// stalled
+	SLEEP 0 : SLEEP 5
+	IFF chan(5) > 10000		// spooling out
+            GOSUB check_direction
+	      IFF ccw = 1		// this test if line spools from bottom
+            //IFF ccw = 0               // this test ifline spools from top
+                 running_count = running_count + (pay_out_count - temp_count)
+	         temp_count = pay_out_count
+                 PRINT running_count
+                 GOTO wave_follow_2 // line spools from top
+            ENDIF
+	ENDIF
+	GOTO wave_follow_1
+//
+// Two subroutines used while wave following
+//
+coast:
+	command_i = 0	        // zero pull
+	GOSUB set_i_now
+	PSET 7			// disable maxon drive
+	RETURN
+
+light_pull:
+	command_i = wave_i	// light pull
+	GOSUB set_i_now
+        PCLR 7			// enable maxon controller
+	RETURN
+//
+// -------------------------------------------------------------
+//    ..... command 3 ......
+dive:
+	IFF dfpoint >= DFMAX-100 | dfpoint < 0
+	    PRINT :PRINT "4 Out of memory, skipping STORE instructions!!"
+            GOTO diving
+	ENDIF
+	GOSUB store_mdyhms	// store the time
+diving:
+	PSET 3			// controller on
+	PSET 6			// disable brake
+	SLEEP 0 :SLEEP 10	// delay for brake
+	PCLR 7			// enable drive
+	haul_in_count = 0	// reset counter
+	COUNT haul_in_count	// start counter
+	command_i = haul_in_i	// high current drive
+	GOSUB set_i_now
+	SLEEP 0 : SLEEP inertia	// inertia delay
+
+wait_for_bottom:
+	RTIME : now = ?(0)
+	PRINT " Diving!"
+//
+// Measure and save battery voltage and drive current after inertia
+//
+	GOSUB read_ad_0		// measure battery voltage
+	GOSUB read_ad_1		// measure drive current
+        dive_i = drive_i : dive_e = supply_e
+	IFF ascent_number >= 200
+	    IF supply_e <= minimum_e low_voltage_flag = 1
+	ENDIF
+	GOSUB check_direction
+	IFF dfpoint >= DFMAX-100 | dfpoint < 0
+	    PRINT :PRINT "5) Out of memory, skipping STORE instructions!!"
+	    GOTO reset_line_count
+	ENDIF
+	record_pointer = 0 : record_count = record_count + 1
+	STORE record_pointer,#2,record_count
+reset_line_count:
+	line_number = 0 : PRINT
+	PRINT " Hall count       battery voltage       Drive current      Flag     ccw         motion"
+	PRINT
+	flag = 0		// start with flag at 0
+dive_loop:
+	GOSUB check_haul_in
+	GOSUB read_ad_0		// measure drive voltage and current
+	GOSUB read_ad_1
+	PRINT "    ",haul_in_count,"                ",#2.2F,supply_e;
+	PRINT "                 ",#2.2F,drive_i;
+	PRINT "           ",    flag,"        ",ccw,"            ",motion
+	line_number = line_number +1
+	IF motion = 1 flag = 0
+	IF motion = 0 flag = flag + 1
+	IFF flag >= 10
+	    GOSUB shut_down_motor
+	    PRINT " On the bottom."
+            IFF dfpoint >= DFMAX-100 | dfpoint < 0
+	        PRINT :PRINT "6) Out of memory, skipping STORE instructions!!"
+		RETURN
+	    ENDIF
+	    GOSUB store_mdyhms			        // store the time
+	    STORE dfpoint,#4, dive_i,dive_e	        // store power data while hauling in
+	    STORE dfpoint,#4, out_count,haul_in_count	// store line data
+	    STORE dfpoint,#4, sw_pwr			// ascending buss voltage
+	    RETURN
+	ENDIF
+	IFF haul_in_count >= maximum_haul_in
+	    GOSUB shut_down_motor
+	    PRINT " line must be parted!!."
+            IFF dfpoint >= DFMAX-100 | dfpoint < 0
+	        PRINT :PRINT "7) Out of memory, skipping STORE instructions!!"
+		RETURN
+	    ENDIF
+	    GOSUB store_mdyhms			        // store the time
+	    STORE dfpoint,#4, dive_i,dive_e	        // store power data while hauling in
+	    STORE dfpoint,#4, out_count,haul_in_count	// store line data
+	    STORE dfpoint,#4, sw_pwr			// average motor voltage while surfacing
+	    RETURN
+	ENDIF
+	IF line_number >=36 GOTO reset_line_count
+	GOTO dive_loop
+
+check_haul_in:
+	GOSUB check_motion
+	IF motion = 0 RETURN				// not moving
+	GOSUB read_ad_1					// might be two blocked
+	IFF drive_i < 1
+	     motion = 0
+	     PRINT " Two blocked!"
+	     RETURN
+	ENDIF
+//
+// Here we check to make sure the motor shaft isn't simply jittering.  Since Hall 2 fires the motion detector
+// and since Hall 1 drives the line counter, we expect the counter to be advancing while motion is indicated.
+// That being the case we simply return.  However, if motion is indicated and the Hall counter is not advancing
+// the shaft is simply jittering and causing a false motion indication.
+
+	jitter_count = haul_in_count
+	SLEEP 0 : SLEEP 10				// wait .1 seconds
+	IFF haul_in_count = jitter_count
+            motion = 0
+            PRINT " Jittering!!! "
+	ENDIF
+	RETURN
+
+//
+//-----------------------------------------------------------------------------
+//
+// 1_Q_EC Hall sensor 1 is connected to the period input of the TT8.
+// This sensor gives one (4?) positive going pulse (pulses?) per motor revolution.
+// The PERIOD instruction returns the time required for n poitive
+// pulses to occur.  The time is measured in terms of TPU timer #1
+// period. This period is read using the TXbasic extended command
+// TPUgetTCR1(). So, PERIOD returns a number, p, of periods of the
+// TPU timer frequnecy which occur in n revolutions herefore,
+// motor RPM = 60*(n*TPUfreq)/p)).
+//
+read_rpm:
+	motion = 1		// assume RPM > 150
+	p = PERIOD(1,5)		// time 1 revolution, allow .05 seconds
+	IF p = 0 GOTO p_was_0
+	GOSUB check_direction
+	rpm = (60 * ((1 * TPUGetTCR1()) / p))/4
+	IF rpm < 150 motion = 0
+	IF ccw = 1 rpm = rpm * -1
+	RETURN
+p_was_0:
+	rpm = 0
+	motion = 0
+	RETURN
+//
+//------------------------------------------------------------------------
+//  *** command 4 ***
+//
+// Here we RUN the schedule.
+//
+run_sched:
+	IFF timSet = 0 | ascent_set = 0
+            PRINT " Both the time AND the Schedule must be verified!"
+            GOTO display_commands
+        ENDIF
+	ans$ = "n"
+	INPUT " Reset pointers? (Y/N) "ans$
+	IF ans$ = "Y" GOSUB reset_pointers
+	IF ans$ = "y" GOSUB reset_pointers
+	GOSUB wait_sec0		// resync to second 0
+	target_minute = start_minute
+
+	// On the bottom here.
+
+main_loop:
+	GOSUB wait_for_target
+	GOSUB read_clock
+	IFF milnm_min >= stop_minute
+	    PRINT " Reached stop minute."
+	    GOTO sleep_here
+	ENDIF
+	IFF low_voltage_flag = 1
+	    PRINT " Baterry voltage below ",minimum_e
+	    GOTO sleep_here
+	ENDIF
+	PRINT " cycling! "
+	target_minute = milnm_min + surface_interval
+	n_cycles = 1
+	GOSUB cycle
+	GOSUB wait_sec0		// resync to top of minute
+	GOTO main_loop
+snooz:
+	IFF timSet = 0
+	    PRINT
+	    PRINT " Set the clock first!!!"
+	    PRINT
+	    GOSUB getcmnd
+	    GOTO tst_it
+	ENDIF
+sleep_here:
+	CBREAK wake_up
+	PRINT " Going to sleep! "
+	GOSUB wait_sec0
+	command_i = 0 : GOSUB set_i_now
+	PCLR 0,1,3,4,5,6,7,8	// Preset the output lines
+	PSET 2			// to lowest power condition
+	PCLR 9,10,11,12,13,15,16
+	ADoff()
+hybing: HYB 60
+	GOSUB	read_clock
+	GOTO hybing
+wake_up:CBREAK		// restore break vector
+	GOTO display_commands
+
+wait_for_target:		// cycle motor power
+	command_i = 0
+	GOSUB set_i_now
+	PCLR 0,1,3,4,5,6,7,8	// Preset the output lines
+	PSET 2			// to lowest power condition
+	PCLR 9,10,11,12,13,15,16
+	ADoff()
+scan_minute:
+	GOSUB read_clock
+	PRINT " Waiting ",target_minute-milnm_min," minutes for milnm_min = ",target_minute
+	IF milnm_min >= target_minute RETURN
+	HYB 60
+	GOTO scan_minute
+
+// -------------------------------------------------------------
+//    ..... command 5 ......
+//
+freewheel:
+	char_pnt = 0
+	pay_out_count = 0
+	running_count = 0
+	temp_count = 0
+	COUNT pay_out_count	// keep track of line out
+	PRINT : PRINT "OK to pull line out, any character to  exit."
+	PSET 3			// controller on
+	PSET 6			// release brake
+	command_i = 0	// zero pull
+	GOSUB set_i_now
+	PSET 7			// enable maxon controller
+
+free_out_loop:
+	ITEXT char_pnt,1
+
+	IFF char_pnt > 0
+	    GOSUB shut_down_motor
+            GOTO display_commands
+	ENDIF
+//
+// This can be confusing!  If the line spools from the top of the drum,
+// the drum must turn ccw to haul in.  The ccw signal is high while the drum is turning ccw.
+// If the line spools from the bottom of the drum then the drum must turn cw to haul in. The ccw
+// signal will be low while the drum is rotating cw.  The maim controller's direction pin must
+// be tied low to haul in if the line spools from the top.
+//
+
+	GOSUB check_direction
+	IFF chan(5) > 10000		// motor shaft is moving
+             //IFF ccw = 0 	        // this test if line spools from bottom
+	    IFF ccw = 1 		// this test if line spools from top
+	        running_count = running_count + (temp_count - pay_out_count)
+	        temp_count = pay_out_count
+                GOTO free_wheel_status
+            ENDIF
+	ENDIF
+	IFF chan(5) > 10000		// motor shaft is moving
+            GOSUB check_direction
+	    //IFF ccw = 1		// this test if line spools from bottom
+            IFF ccw = 0                 // this test if line spools from top
+                 running_count = running_count + (pay_out_count - temp_count)
+	         temp_count = pay_out_count
+                 GOTO free_wheel_status
+            ENDIF
+	ENDIF
+
+free_wheel_status:
+	PRINT running_count,"  ";
+	IFF chan(5) > 10000
+            PRINT "Moving","  ";
+	    IF chan(4) > 10000 PRINT "CCW   ";
+	    IF chan(4) < 10000 PRINT "CW   ";
+	    GOSUB read_ad_6
+	    PRINT "Motor voltage = ",#3.2F, sw_pwr
+	ENDIF
+	IF chan(5) < 10000 PRINT "Stationary"
+	GOTO free_out_loop
+//
+//------------------------------------------------------------------------
+//
+// ***** Command 6 ****
+//
+//
+// Current is set by varying the voltage on the "speed" pin of the MAXON
+// 1-Q-EC motor controler which in turn is accomplished with the aid of
+// an AD8400 digitally controlled potentiometer.  The transfer functon is:
+// Vw(Dx) = Dx/256 * Vab + Vb Where: Dx is the input value, Va is the
+// A1 terminal voltage, Vb is the B1 terminal voltage and Vw is the
+// output voltage.    In the GATEWAY electronics, Va is set to 0 volts
+// and Vb is set to 5 volts, so, Vw(Dx) = Dx/256 * 5.
+// The 1-Q-EC current control is scaled such that 5 Volts at
+// the speed input produces 5 Amps of current limit, therfore,
+// Dx = (256 * command_1) / 5 = 51.2 * command_i
+//
+
+change_i:
+	PRINT : PRINT " Haul in current limited to ",#1.2F,haul_in_i
+	PRINT " Surface mode current limited to ",#1.2F,wave_i : PRINT
+	INPUT "Enter a 1 to change haul in or 2 to change surface mode, anything else to exit. "n
+	IF n = 1 GOTO change_dive
+	IF n = 2 GOTO change_wave
+	RETURN
+change_dive:
+	PRINT : INPUT	"Enter desired dive motor drive current in Amps. " haul_in_i
+	PRINT
+        IFF (haul_in_i < 0 | haul_in_i > 5)       // check input
+	     PRINT "Motor current must be between 0 and 5 amps!"
+	ENDIF
+	GOTO change_i
+change_wave:
+	PRINT : INPUT	"Enter desired surface motor drive current in Amps.  "wave_i
+        IFF (wave_i < 0 | wave_i > 5)       // check input
+	     PRINT "Motor current must be between 0 and 5 amps!"
+	ENDIF
+	GOTO change_i
+	PRINT
+set_i_now:
+	Dx = (51.2 * command_i)
+	IF Dx = 256 Dx = 255 // since 255 is the AD8400's full scale.
+	SDO Dx,11
+//	PRINT "Current limited to ",#1.2F,Dx/51.2," Amps"
+	RETURN
+//
+//-----------------------------------------------------------------------------
+//    ..... command 7 ......
+//
+
+shut_down_motor:
+	PRINT : PRINT " Shuting down motor."
+	PCLR 6 			// activate mechanical brake\
+	PRINT " Mechanical brake set."
+	SLEEP 0 :SLEEP 30	// delay for brake
+	PSET 7			// disable motor drive
+	PCLR 3			// motor power off, engage brake
+	PRINT " Motor drive power off."
+	SLEEP 0 : SLEEP 10	// wait .1 seconds
+	PCLR 7 			// save a little current
+	RETURN
+//
+//---------------------------------------------------
+//	..... command 8 .....
+
+cycles:	INPUT " Reset pointers? (Y/N) "ans$
+	IF ans$ = "Y" GOSUB reset_pointers
+	IF ans$ = "y" GOSUB reset_pointers
+	minimum_pay_out = 0
+	PRINT : INPUT "How many cylces? "n_cycles
+	IFF n_cycles <=0
+	    PRINT : PRINT " Number of cycles must be at least 1!"
+	    RETURN
+	ENDIF
+	bench_test = 1
+cycle:	FOR cycle_count = 1 TO n_cycles
+	    xmit_flag = 0
+//
+// If bench testing set up for a 1 minute wave follow.
+//
+	    IF bench_test = 1 surface_time = 1
+
+	        GOSUB wait_sec0		//sysnc to the top of a minute
+	        GOSUB get_time
+	        dive_minute = milnm_min + surface_time
+
+	    GOSUB surface
+            ascent_number = ascent_number + 1
+  	    SLEEP 0 : SLEEP 50
+	    IF aa < 1 | surface_time < 1 GOTO skip_xmit_test
+	    IF ascent_number % aa = 0 xmit_flag = 1
+//
+// Here we check for ice cover, the esuarine winch has the minimum_pay_out
+// variable set to 0 so the ice flag will never be set to 1
+//
+
+	    IFF ice_flag = 1
+                PRINT : PRINT " Stopped before reaching surface!"
+                GOTO skip_xmit_test
+	    ENDIF
+            IF xmit_flag = 1 GOSUB wave_follow
+skip_xmit_test:
+	    GOSUB dive
+	    SLEEP 0 : SLEEP 50
+	GOSUB get_time
+	next_ascent = target_minute - milnm_min : print #04,next_ascent
+nxtcyc:	NEXT cycle_count
+	bench_test = 0		// in case we were bench testing
+	RETURN
+//
+//---------------------------------------------------
+//	..... command 9 .....
+//
+// Here we load and set the time in a single line.
+// The input format is mm/dd/yyyy hh:mm:ss
+
+line_time_set:
+	INPUT "Date "date_time$;
+	char_offset = 0
+	GOSUB get_line_time
+	IFF date_ok <> 1 | time_ok <> 1
+	    bad = 1
+	    GOSUB bad_input
+	    RETURN
+	ENDIF
+	GOSUB load_q_array
+	timSet = 1
+	RETURN
+bad_input:
+	PRINT : PRINT "BAD",bad : PRINT "? "
+	RETURN
+//
+get_line_time:
+	sx$ = MID(date_time$,char_offset + 1,2)
+	month = VAL(sx$)
+	sx$ = MID(date_time$,char_offset + 4,5)
+	day = VAL(sx$)
+	sx$ = MID(date_time$,char_offset + 7,4)
+	year = VAL(sx$)
+	sx$ = MID(date_time$,char_offset + 12,2)
+	hour = VAL(sx$)
+	sx$ = MID(date_time$,char_offset + 15,2)
+	minute = VAL(sx$)
+	sx$ = MID(date_time$,char_offset + 18,2)
+	second = VAL(sx$)
+	GOSUB ck_date
+	GOSUB ck_time
+	RETURN
+//----------------------------------------------------
+//
+//	.... command 10 .....
+//
+// Here we load and set the schedule in a single line
+// formatted as follows:
+// "mm/dd/yyyy-hh:mm:ss---mm/dd/yyyy-hh:mm:ss---mmmm mmmm ccc"
+// Start date and time   Stop date and time
+// first mmmm = Ascent interval in minutes, must be >5 and
+// second mmmm is time in minutes to spend at the surface.
+// The surface interval may be 0000. ccc = transmit every aa ascents
+//
+line_sched_set:
+	GOSUB get_time
+	now = milnm_min
+	INPUT "Schedule "date_time$;
+	char_offset = 0
+	GOSUB get_line_time
+	IFF date_ok <> 1 | time_ok <> 1
+            bad = 2
+	    GOSUB bad_input
+	    RETURN
+	ENDIF
+	GOSUB calc_mt		// calculate milnm_min
+	IFF now > milnm_min
+            bad = 3
+	    GOSUB bad_input
+
+	    RETURN
+	ENDIF
+	GOSUB store_start_time
+	char_offset = 22
+	GOSUB get_line_time
+	IFF date_ok <> 1 | time_ok <> 1
+            bad = 4
+	    GOSUB bad_input
+	    RETURN
+	ENDIF
+	GOSUB calc_mt		// calculate milnm_min
+	GOSUB store_stop_time
+	IFF stop_minute < start_minute
+	    bad = 5
+	    GOSUB bad_input
+	    RETURN
+	ENDIF
+	sx$ = MID(date_time$,45,4)	// surface interval
+	surface_interval = VAL(sx$)
+	IFF surface_interval < 5
+            bad = 6
+	    GOSUB bad_input
+	    RETURN
+	ENDIF
+	sx$ = MID(date_time$,50,4)	// default surace time
+	surface_time = VAL(sx$)
+
+	sx$ = MID(date_time$,55,2)
+	aa = VAL(sx$)			// transmit every aa ascents
+
+	ascent_set = 1
+	GOSUB line_sched_out	// read it back for verification
+	RETURN
+//
+store_start_time:
+	start_date_time(0) = month : start_date_time(1) = day
+	start_date_time(2) = year
+	start_date_time(3) = hour : start_date_time(4) = minute
+	start_date_time(5) = second : start_date_time(6) = milnm_min
+	start_minute = start_date_time(6)
+	RETURN
+//
+store_stop_time:
+	stop_date_time(0) = month : stop_date_time(1) = day
+	stop_date_time(2) = year
+	stop_date_time(3) = hour : stop_date_time(4) = minute
+	stop_date_time(5) = second : stop_date_time(6) = milnm_min
+	stop_minute = stop_date_time(6)
+	RETURN
+//-------------------------------------------------------
+line_sched_out:
+	PRINT : PRINT "         ";
+	PRINT #02,start_date_time(0),"/";
+	PRINT #02,start_date_time(1),"/";
+	PRINT #02,start_date_time(2)," ";
+	PRINT #02,start_date_time(3),":";
+	PRINT #02,start_date_time(4),":";
+	PRINT #02,start_date_time(5);
+	PRINT "   ";
+	PRINT #02,stop_date_time(0),"/";
+	PRINT #02,stop_date_time(1),"/";
+	PRINT #02,stop_date_time(2)," ";
+	PRINT #02,stop_date_time(3),":";
+	PRINT #02,stop_date_time(4),":";
+	PRINT #02,stop_date_time(5);
+	PRINT "   ";
+	PRINT #04,surface_interval," ";
+	PRINT #04,surface_time," ";
+	PRINT #02,aa
+	PRINT "Schedule set"
+	RETURN
+//
+// 	****** Command 11 *****
+// Here we display the schedule
+//
+read_sched:
+	IFF ascent_set = 0
+            PRINT
+            PRINT " First ascent time not set!!!"
+	    RETURN
+	ENDIF
+//
+show_sched:
+	PRINT : GOSUB show_time
+	PRINT :PRINT " First ascent ... ";
+	GOSUB print_1AT
+	PRINT :PRINT " The ascent interval = ",surface_interval," minutes"
+	IFF surface_time < 1 | aa < 1
+	    PRINT :PRINT " Dive immediatly upon detecting the surface."
+            PRINT :PRINT " Last descent ... ";
+	    GOSUB print_1DT
+            RETURN
+	ENDIF
+	PRINT :PRINT " Allow ",surface_time," minutes for transmission and transmit every ";
+	PRINT aa," ascents."
+	PRINT :PRINT " Last descent ... ";
+	GOSUB print_1DT
+	RETURN
+//------------------------------------------------------
+print_1AT:
+	PRINT " Start = ";
+aprint_1at:
+	PRINT #02,start_date_time(0),"/";
+	PRINT #02,start_date_time(1),"/";
+	PRINT #02,start_date_time(2),"   ";
+	PRINT #02,start_date_time(3),":";
+	PRINT #02,start_date_time(4),":";
+	PRINT #02,start_date_time(5);
+	PRINT "   milnm minute = ",start_minute
+	RETURN
+//------------------------------------------------------
+print_1DT:
+	PRINT " Stop  = ";
+	PRINT #02,stop_date_time(0),"/";
+	PRINT #02,stop_date_time(1),"/";
+	PRINT #02,stop_date_time(2),"   ";
+	PRINT #02,stop_date_time(3),":";
+	PRINT #02,stop_date_time(4),":";
+	PRINT #02,stop_date_time(5);
+	PRINT "   milnm minute = ",stop_minute
+	RETURN
+
+//-----------------------------------------------------------------------
+//
+// A few time and date related subroutines
+//
+// initialize the TT8's time/date array
+// note the TT8 requires year be stored as a single byte
+
+load_q_array:
+	?(5) = year - 2000 : ?(4) = month : ?(3) = day
+	?(2)=hour :?(1)=minute :?(0)=second
+        STIME			// move ?() to the "?" variable
+	timSet = 1		// indicate time has been set
+	GOSUB read_clock
+	PRINT "Time set"
+	RETURN			// and quit
+
+//--------------------------------------------------
+get_date:			// not used if line entry is
+	good_date = 0           // clear the status flag
+ INPUT "Enter date.. Month? "month;," Day? "day;,"  4 digits of Year? "year
+	GOSUB ck_date           // check if the date is valid
+	IFF (date_ok = 0)       // if the date is invalid
+	   PRINT : PRINT " Invalid date!",\7 : PRINT    // tell user
+	   RETURN               // and quit
+	ENDIF                   // if the date is valid
+	good_date = 1
+	RETURN
+//--------------------------------------------------
+ck_date:
+	date_ok = 0             // assume an error
+	IFF (year < 2003)       // start here
+	   RETURN               // bad year!
+	ELSE
+	   GOSUB ck_leap        // determine if leap year
+	   IFF (month > 12 | month < 1)
+	      RETURN		// bad month!
+	   ENDIF
+	   IFF (is_leap = 1)    // if this is a leap year
+	      IFF (day > cal_mon2(month)) | day < 1
+		 RETURN         // bad day!
+	      ENDIF
+	   ELSE
+	      IFF (day > cal_mon1(month)) | day < 1
+		 RETURN         // if so...error quit
+	      ENDIF
+	   ENDIF
+	ENDIF
+	date_ok = 1    // if we are here then the date is OK
+	RETURN
+ck_time:
+	time_ok = 0	// assume time is bad
+	IFF hour > 23 | minute > 59 | second > 59    // if time invalid
+	    RETURN	// bad minute
+	    IFF hour < 0 | minute < 0 | second < 0
+	        RETURN	// bad hour
+	    ENDIF
+	ENDIF
+	time_ok = 1	// set the flag for set_delays
+	RETURN
+//
+// A subroutine to read the clock
+//
+read_clock:
+	IFF (timSet = 0)
+            GOSUB not_set
+ 	    RETURN
+	ENDIF
+show_time:
+	GOSUB get_time
+	GOSUB print_mdyhms
+	RETURN
+//-------------------------------------------------
+// The clock has not been set...tell user
+
+not_set:
+	PRINT :PRINT " CLOCK NOT SET!! ",\7 :PRINT
+	RETURN
+// -------------------------------------------------
+get_time:
+	GOSUB set_ydmhms
+calc_mt:
+	GOSUB ck_leap
+	GOSUB calc_year_day
+	GOSUB calc_milnm
+	RETURN
+//--------------------------------------------------
+calc_year_day:
+	IFF is_leap = 1
+	    year_day = cal_day2(month)+day
+	ELSE
+	    year_day = cal_day1(month)+day
+	ENDIF
+	RETURN
+//--------------------------------------------------
+// Calculate the millennium time. Millennium second 0
+// occured on January 1st 2001 @ 00:00:00
+//
+calc_milnm:
+  	l_days = (year-2000)/4
+	IF is_leap = 0 q_days = ((year-1)-2000)*365+l_days
+	IF is_leap = 1 q_days = ((year-1)-2000)*365+(l_days-1)
+	milnm_day = (q_days + year_day)
+	milnm_hour = ((milnm_day-1)*24)+hour
+	milnm_min = (milnm_hour*60)+minute
+//	milnm_sec = (milnm_min*60)+second  // not used
+	RETURN
+//-------------------------------------------------------
+// A subroutine to print the date and time.
+
+print_mdyhms:
+	PRINT :PRINT " RTC = ", #02,month,"/",day,"/";
+	PRINT #04,year,"   ",#02,hour,":";
+	PRINT #02,minute,":",#02,second;
+//	PRINT "   year day = ",year_day,";
+	PRINT #07,"   milnm minute = ",milnm_min
+	RETURN
+//-------------------------------------------------------
+set_ydmhms:
+	RTIME
+	year = (?(5) + 2000)
+	month = ?(4) : day = ?(3)
+	hour = ?(2) : minute = ?(1) : second = ?(0)
+	start_stop(0) = month  : start_stop(1) = day
+	start_stop(2) = (year-2000)
+        start_stop(3) = hour
+	start_stop(4) = minute : start_stop(5) = second
+	RETURN
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ck_leap:
+	IFF (((year % 4 = 0) & (year % 100 <> 0)) | (year % 400 = 0))
+	   is_leap = 1
+	ELSE
+	   is_leap = 0
+	ENDIF
+	RETURN
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+wait_sec0:
+	PRINT : PRINT " Waiting for second = 0"
+	PRINT
+	RTIME : second = ?(0)
+	now = second
+	s_count = 0
+re_sync:
+	RTIME : second = ?(0)
+	IFF second = 0
+	    HYB 0 : PRINT
+	    RETURN
+	ENDIF
+	IFF now <> second
+            PRINT second," ";
+	    now = second
+	    s_count = s_count + 1
+            IFF s_count >=20
+                s_count = 0
+                PRINT
+	    ENDIF
+	ENDIF
+	GOTO re_sync
+
+// --------------------------------------------------
+store_mdyhms:
+  	IFF dfpoint >= DFMAX-100 | dfpoint < 0
+	    PRINT :PRINT " Out of memory!!"
+	    RETURN
+	ENDIF
+	GOSUB set_mdyhms		//get date and time
+	FOR n = 0 TO 5
+	    STORE dfpoint,#1,start_stop(n)
+	NEXT n
+	RETURN
+
+set_mdyhms:
+	RTIME
+	year = (?(5) + 2000)
+	month = ?(4) : day = ?(3)
+	hour = ?(2) : minute = ?(1) : second = ?(0)
+	start_stop(0) = month  : start_stop(1) = day
+	start_stop(2) = (year-2000)
+        start_stop(3) = hour
+	start_stop(4) = minute : start_stop(5) = second
+	RETURN
+//------------------------------------------------------
+//
+an_error:
+	PRINT : PRINT;
+	PRINT " !!!!!!!  Run time error #",error," detected  !!!!!!!"
+	PRINT : GOSUB shut_down_motor
+	GOSUB reset_pointers	// restart data logger
+	GOTO	main_loop	// try a restart
+//
+
+reset_pointers:
+	record_count = 0	// number of data records stored
+	dfpoint = 2		// start of data
+	valid_data = 1234567890
+	PRINT : PRINT " Pointers reset"
+	RETURN
+//-----------------------------------------------------------------
+//
+//  **** command 12 *****
+//
+dump_data:
+	record_pointer = 0	// get the number of records stored
+	rec_count = GET(record_pointer,#2)
+
+	IFF valid_data <> 1234567890 | rec_count <= 0 | rec_count >= 24268
+	    PRINT : PRINT " No data available or Invalid record";
+            PRINT " count, rec_count = ",rec_count
+	    RETURN
+	ENDIF
+
+	PRINT
+	PRINT "     Ascending          Surfaced      ";
+	PRINT "     Diving            Retrieved "  ;
+        PRINT "  Current  Voltage  Counts out  Counts in  Surfacing voltage"
+	PRINT
+	dfpoint = 2
+
+//
+// Print four date/time strings
+//
+	FOR line_out = 1 TO rec_count
+            FOR dt_out = 1 TO 4
+	        IFF dfpoint > DFMAX - 100 | dfpoint < 0
+                    PRINT "Trying to read past last ";
+                    PRINT "memory location!!"
+	            RETURN
+                ENDIF
+	        GOSUB print_dt
+            NEXT dt_out
+	    PRINT #2.2F,GET(dfpoint,#4),"   ",#2.2F,GET(dfpoint,#4),"     "; // current and voltage
+	    PRINT GET(dfpoint,#4),"       ",GET(dfpoint,#4),"           ";   // count out and in
+	    PRINT #2.2F,GET(dfpoint,#4)                  // the average buss voltage while surfacing.
+	NEXT line_out
+	PRINT : RETURN
+
+print_dt:
+	PRINT #02,GET(dfpoint,#1),"/",#02,GET(dfpoint,#1);
+	PRINT "/",#02,GET(dfpoint,#1)," ";
+	PRINT #02,GET(dfpoint,#1),":",#02,GET(dfpoint,#1);
+        PRINT ":",#02,GET(dfpoint,#1),"  ";
+	RETURN
+//------------------------------------------------------------------
+//
+// Command 14
+//
+load_drum:
+	PSET 3			// release brake, controller on
+	PSET 6			// release brake
+	PCLR 7			// enable drive
+	haul_in_count = 0	// reset counter
+	COUNT haul_in_count	// start counter
+	command_i = load_drum_i	// set the current
+	GOSUB set_i_now		//
+	char_pnt = 0
+//
+new_line:
+	line_number = 0 : PRINT
+	PRINT " Hall count       battery voltage       Drive current      Flag     ccw         motion"
+	PRINT
+load_status:
+	ITEXT char_pnt,1
+
+	IFF char_pnt > 0
+	    GOSUB shut_down_motor
+	    GOTO display_commands
+	ENDIF
+
+	GOSUB check_motion
+	IF motion = 1 flag = 0
+	IF motion = 0 flag = flag + 1
+
+	IFF flag > 1
+	    PRINT : PRINT
+	    PRINT " TWO BLOCKED! "
+	    GOSUB shut_down_motor
+	    GOTO display_commands
+        ENDIF
+
+	GOSUB read_ad_0		// measure drive voltage and current
+	GOSUB read_ad_1
+	GOSUB read_ad_4
+	PRINT "    ",haul_in_count,"                ",#2.2F,supply_e;
+	PRINT "                 ",#2.2F,drive_i;
+	PRINT "           ",    flag,"        ",ccw,"            ",motion
+	line_number = line_number + 1
+	IF line_number >=36 GOTO new_line
+	GOTO load_status
+//-----------------------------------------------------------------
+// Command 999
+// Just in case there was a glitch and data really is available!
+//
+OH_DAMN:ans$ = "n"
+	INPUT " Pointers and flags? y/n "ans$
+	IF ans$ = "Y" GOSUB set_all
+	IF ans$ = "y" GOSUB set_all
+	RETURN
+set_all:
+	dfpoint = 2		// back to beginning
+	INPUT "Record count? "record_count
+	record_pointer = 0
+	STORE record_pointer,#2,record_count
+	valid_data = 1234567890 // validate data
+	timSet = 1		// indicate good time
+	ascent_set = 1
+	PRINT : PRINT " Try command 11 and 12 now"
+	PRINT : RETURN
+
+	STOP
+

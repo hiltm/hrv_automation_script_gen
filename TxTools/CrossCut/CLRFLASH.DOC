@@ -1,0 +1,22 @@
+This program is for clearing the flash EEPROM of the Tattletale Model 8.
+It will clear all of flash EXCEPT for the TOM8 monitor. To use this program,
+you must see the TOM8> prompt in CrossCut. If you don't see that but do
+see the TxB# prompt, hit a Ctrl-X key combination and then answer 'Y' when
+asked if you really want to exit to the monitor. If you can't get to the
+monitor any other way, jumper IRQ3 to ground (that is, jumper pin A5 to A1
+on the IO-8 board) and cycle the power on the Model 8. You should now see
+the TOM8> prompt. Remove the jumper before continuing.
+
+With the TOM8> prompt showing, choose 'Load' from the 'Tattletale' menu in
+CrossCut. When the dialog box appears, find the file CLRFLASH.RHX and
+load it. When TOM8 tells you it loaded successfully and you get another
+prompt, just type 'G' and hit return. The program will run.
+
+First you will be shown a map of the flash EEPROM in blocks of 256 bytes.
+If a block is used, it is marked with an 'X'. If not used it is marked
+with a period. You will be asked if you really want to clear flash. Answer
+yes. You will see a status line showing percent complete. When it's done
+you will be shown another map of flash with a lot more periods! Note that
+the first prt of flash still has 'X' marks - this is the TOM8 monitor.
+
+You can now re-load TxBASIC as you would normally.
