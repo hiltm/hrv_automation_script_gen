@@ -142,7 +142,7 @@ def incubation():
     volume_divided_evenly = shared_funcs.yes_or_no()
 
     print("Would you like to wait the same amount of time in seconds between the "+str(timepoint_samples)+" timepoint samples? If not you will be prompted to specify individual wait times for each sample.")
-    time_divided_evenly = shared_funcs.es_or_no()
+    time_divided_evenly = shared_funcs.yes_or_no()
     if time_divided_evenly:
         print("Specify the time in seconds to wait between the "+str(timepoint_samples)+" timepoint samples, range is between "+str(params.waitTimeBetweenTimepointSamples_min)+
               " and "+str(params.waitTimeBetweenTimepointSamples_max)+". Default is "+str(params.waitTimeBetweenTimepointSamples_dft))
