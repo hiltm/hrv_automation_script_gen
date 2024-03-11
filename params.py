@@ -57,6 +57,10 @@ emptyIncubationChamberTime = 30 #seconds
 fillIncubationChamberTime = 120 #seconds
 moveToPort = 60 #seconds
 fillFilterTime = 60 #seconds
+## filtration ##
+filtrationPositions_min = 1
+filtrationPositions_max = 49
+filtrationPositions_dft = 4
 
 
 #### POST-DIVE CLEANING ####
