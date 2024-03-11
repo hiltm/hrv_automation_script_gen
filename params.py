@@ -61,6 +61,15 @@ fillFilterTime = 60 #seconds
 filtrationPositions_min = 1
 filtrationPositions_max = 49
 filtrationPositions_dft = 4
+filtrationSameVolume_min = 25 #mL
+filtrationSameVolume_max = 3000 #mL
+filtrationSameVolume_dft = 500 #mL
+filtrationSampleVolume_min = 25 #mL
+filtrationSampleVolume_max = 5000 #mL
+filtrationSampleVolume_dft = 500 #mL
+filtrationTracerVolume_min = 0 #mL
+filtrationTracerVolume_max = 500 #mL
+filtrationTracerVolume_dft = 50 #mL
 
 
 #### POST-DIVE CLEANING ####
