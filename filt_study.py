@@ -90,34 +90,34 @@ def filtration():
                 print("Specify amount of sample to pump through PORT "+str(ports[x])+" ,range is between "+str(params.filtrationSampleVolume_min)+
                     " and "+str(params.filtrationSampleVolume_max)+". Default is "+str(params.filtrationSampleVolume_dft))
                 filtrationSampleVolume = shared_funcs.int_check("filtrationSampleVolume", params.filtrationSampleVolume_min, params.filtrationSampleVolume_max, params.filtrationSampleVolume_dft)
-                print("Specify amount of sample to pump through PORT "+str(ports[x]+1)+" ,range is between "+str(params.filtrationTracerVolume_min)+
+                print("Specify amount of tracer to pump through PORT "+str(ports[x]+1)+" ,range is between "+str(params.filtrationTracerVolume_min)+
                     " and "+str(params.filtrationTracerVolume_max)+". Default is "+str(params.filtrationTracerVolume_dft))
                 filtrationTracerVolume = shared_funcs.int_check("filtrationTracerVolume", params.filtrationTracerVolume_min, params.filtrationTracerVolume_max, params.filtrationTracerVolume_dft)
-                ############ pick up here, next is to check that there is enough tracer remaining
-                
-                if filtrationTracerVolume > remaining_chamber_volume:
-                    print("Sample volume specified exceeds remaining incubation chamber volume. Max allowed volume is "+str(remaining_chamber_volume)+". Please reenter.")
+                if filtrationTracerVolume > remaining_injector_volume:
+                    print("Tracer volume specified exceeds remaining tracer bag volume. Max allowed volume is "+str(remaining_injector_volume)+". Please reenter.")
                 else:
                     (confirm_remaining_injector_vol) = True
-                    remaining_chamber_volume = remaining_chamber_volume - incubationTestSampleVolume
-                    f.write("eV:"+str(incubationTestSampleVolume))         #sample volume
+                    remaining_injector_volume = remaining_injector_volume - filtrationTracerVolume
+                    f.write("eV:"+str(filtrationSampleVolume))         #sample volume
                     f.write("\n")
-                    print("SUBSAMPLE is "+str(incubationTestSampleVolume))
-        if time_divided_evenly:
+                    #TODO wait 1 second
+                    #TODO inject tracer
+
+        if same_time:
             f.write("wS:"+str(round(time_between_samples,2)))                #wait for X seconds
             f.write("\n")
-            time = shared_funcs.get_est_runtime() + timepoint_samples * params.fillFilterTime + timepoint_samples * time_between_samples
+            time = shared_funcs.get_est_runtime() + positions * params.fillFilterTime + positions * time_between_samples
             shared_funcs.set_est_runtime(time)
         else:
-            print("Specify the time in seconds to wait after "+str(ports[x])+", range is between "+str(params.incubationTestSampleVolume_min)+
-              " and "+str(params.incubationTestSampleVolume_max)+". Default is "+str(params.incubationTestSampleVolume_dft))
-            incubationTestSampleWaitTime = shared_funcs.int_check("incubationTestSampleWaitTime", params.incubationTestSampleVolume_min, params.incubationTestSampleVolume_max, params.incubationTestSampleVolume_dft)
+            print("Specify the time in seconds to wait after "+str(ports[x])+", range is between "+str(params.filtrationWaitTimeBetweenPositions_min)+
+              " and "+str(params.filtrationWaitTimeBetweenPositions_max)+". Default is "+str(params.filtrationWaitTimeBetweenPositions_dft))
+            incubationTestSampleWaitTime = shared_funcs.int_check("filtrationTestSampleWaitTime", params.filtrationWaitTimeBetweenPositions_min, params.filtrationWaitTimeBetweenPositions_max, params.filtrationWaitTimeBetweenPositions_dft)
             f.write("wS:"+str(incubationTestSampleWaitTime))       #wait for X seconds
             f.write("\n")
-            time = shared_funcs.get_est_runtime() + timepoint_samples * params.fillFilterTime + timepoint_samples * incubationTestSampleWaitTime
+            time = shared_funcs.get_est_runtime() + positions * params.fillFilterTime + positions * incubationTestSampleWaitTime
             shared_funcs.set_est_runtime(time)
-    if volume_divided_evenly:
-        print("SUBSAMPLE for all "+str(timepoint_samples)+ " is "+str(round(incubationTestSampleVolume,2)))
+    if same_volume:
+        print("SUBSAMPLE for all "+str(positions)+ " is "+str(round(same_volume_throughout,2)))
 
 def config_summary():
     f.write("\n")

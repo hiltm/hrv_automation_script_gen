@@ -74,6 +74,10 @@ filtrationSampleVolume_dft = 500 #mL
 filtrationTracerVolume_min = 0 #mL
 filtrationTracerVolume_max = 500 #mL
 filtrationTracerVolume_dft = 50 #mL
+## wait for the next position ##
+filtrationWaitTimeBetweenPositions_min = 0 #seconds
+filtrationWaitTimeBetweenPositions_max = 4800 #second
+filtrationWaitTimeBetweenPositions_dft = 500 #seconds
 
 
 #### POST-DIVE CLEANING ####
