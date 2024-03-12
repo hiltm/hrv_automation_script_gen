@@ -179,9 +179,9 @@ def incubation():
             time = shared_funcs.get_est_runtime() + timepoint_samples * params.fillFilterTime + timepoint_samples * time_between_samples
             shared_funcs.set_est_runtime(time)
         else:
-            print("Specify the time in seconds to wait after "+str(ports[x])+", range is between "+str(params.incubationTestSampleVolume_min)+
-                  " and "+str(params.incubationTestSampleVolume_max)+". Default is "+str(params.incubationTestSampleVolume_dft))
-            incubationTestSampleWaitTime = shared_funcs.int_check("incubationTestSampleWaitTime", params.incubationTestSampleVolume_min, params.incubationTestSampleVolume_max, params.incubationTestSampleVolume_dft)
+            print("Specify the time in seconds to wait after "+str(ports[x])+", range is between "+str(params.incubationWaitTimeBetweenPositions_min)+
+                  " and "+str(params.incubationWaitTimeBetweenPositions_max)+". Default is "+str(params.incubationWaitTimeBetweenPositions_dft))
+            incubationTestSampleWaitTime = shared_funcs.int_check("incubationTestSampleWaitTime", params.incubationWaitTimeBetweenPositions_min, params.incubationWaitTimeBetweenPositions_max, params.incubationWaitTimeBetweenPositions_dft)
             f.write("wS:"+str(incubationTestSampleWaitTime))       #wait for X seconds
             f.write("\n")
             time = shared_funcs.get_est_runtime() + timepoint_samples * params.fillFilterTime + timepoint_samples * incubationTestSampleWaitTime

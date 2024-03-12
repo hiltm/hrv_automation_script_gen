@@ -48,6 +48,10 @@ incubationTestSsampleVolume = 0 #mL
 incubationTestSampleVolume_min = 0 #mL
 incubationTestSampleVolume_max = 500 #mL
 incubationTestSampleVolume_dft = 500 #mL
+## wait for the next position ##
+incubationWaitTimeBetweenPositions_min = 0 #seconds
+incubationWaitTimeBetweenPositions_max = 4800 #seconds
+incubationWaitTimeBetweenPositions_dft = 500 #seconds
 ## wait for next study ##
 experimentWaitTime_min = 0 #minutes
 experimentWaitTime_max = 43800 #one month in minutes
