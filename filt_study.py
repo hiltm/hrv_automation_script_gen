@@ -53,7 +53,7 @@ def filtration():
     if using_injector:
         f.write("NPO:1")                                    # go to NULL port 1
         f.write("\n")
-        f.write("fT:"+str(fV)+","+str(iT))             #TODO change to injector only         #fill incubator nnnn & tt volume tracer mL
+        f.write("iT:"+str(iT))                               #fill tt volume tracer mL
         f.write("\n")
     intake = iT                                             # intake is injector draw volume
     shared_funcs.set_intake(intake)                          # setting global to track intake volume
