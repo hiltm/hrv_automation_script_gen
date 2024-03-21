@@ -6,9 +6,6 @@ import os
 import params
 from datetime import datetime
 import shared_funcs
-
-stored_ports = []
-est_runtime = 0
             
 def init_cfg():
     f.write("#Init config")

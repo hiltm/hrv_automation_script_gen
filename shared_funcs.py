@@ -1,3 +1,6 @@
+est_runtime = 0
+stored_ports = []
+
 def int_check(parameter, min_value, max_value, dft_value):
     valid_answer = False
     while not(valid_answer):
