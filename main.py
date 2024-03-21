@@ -11,4 +11,7 @@ selection = input(": ")
 if selection == '1':
     subprocess.run(["python", "inc_study.py"])
 elif selection == '2':
+    subprocess.run(["python", "filt_study.py"])
+elif selection == '3':
     subprocess.run(["python", "post_swim_clean.py"])
+#TODO handle any other inputs
