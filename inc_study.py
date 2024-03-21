@@ -229,7 +229,7 @@ filename = 'msconfig.cfg'
 #main calls
 with open(filename, "w") as f:
     print("#####################################")
-    print("Initial configutation/first-time setup")
+    print("Initial configuration/first-time setup")
     print("#####################################")
     init_cfg()
     print("Specify amount of experiments will be ran, range is between "+str(params.experiments_min)+" and "+str(params.experiments_max)+". Default is "+str(params.experiments_dft))

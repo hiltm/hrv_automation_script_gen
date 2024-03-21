@@ -144,7 +144,7 @@ filename = 'msconfig.cfg'
 #main calls
 with open(filename, "w") as f:
     print("#####################################")
-    print("Initial configutation/first-time setup")
+    print("Initial configuration/first-time setup")
     print("#####################################")
     init_cfg()
     #print("Specify number of position to be collected, range is between "+str(params.filtrationPositions_min)+" and "+str(params.filtrationPositions_max)+". Default is "+str(params.filtrationPositions_dft))
