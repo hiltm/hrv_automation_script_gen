@@ -4,6 +4,7 @@ from datetime import datetime
 import shared_funcs
 
 stored_ports = []
+number_of_positions = 0
 est_runtime = 0
 
 def init_cfg():
@@ -62,6 +63,7 @@ def filtration():
     print("Specify amount of filtration timepoint samples to be completed, range is between "+str(params.filtrationPositions_min)+
       " and "+str(params.filtrationPositions_max)+". Default is "+str(params.filtrationPositions_dft))
     positions = shared_funcs.int_check("timepoint_samples", params.filtrationPositions_min, params.filtrationPositions_max, params.filtrationPositions_dft)
+    number_of_positions = positions
     print("Would you like to use the same volume between the "+str(positions)+" positions? If not you will be prompted to specify individual volumes for each port.")
     same_volume = shared_funcs.yes_or_no()
     if same_volume:
@@ -130,7 +132,7 @@ def config_summary():
     print("vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv")
     print("Filtration Study Summary")
     print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
-    time = shared_funcs.get_est_runtime() * positions
+    time = shared_funcs.get_est_runtime() * number_of_positions
     shared_funcs.set_est_runtime(time)
     print("Estimated runtime in seconds is "+str(shared_funcs.get_est_runtime())+" seconds which is "+str(round(shared_funcs.get_est_runtime()/60,2))+" minutes")
     print("Ports in use are "+str(shared_funcs.get_stored_ports()))
@@ -147,7 +149,7 @@ with open(filename, "w") as f:
     init_cfg()
     #print("Specify number of position to be collected, range is between "+str(params.filtrationPositions_min)+" and "+str(params.filtrationPositions_max)+". Default is "+str(params.filtrationPositions_dft))
     #positions = shared_funcs.int_check("experiments", params.filtrationPositions_min, params.filtrationPositions_max, params.filtrationPositions_dft)
-    for x in range(positions):
+    for x in range(number_of_positions):
         f.write("#POSITION "+str(x+1)+"\n")
         print(" ")
         print("#####################################")
