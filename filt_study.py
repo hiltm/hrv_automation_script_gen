@@ -63,6 +63,7 @@ def filtration():
         f.write("\n")
         f.write("iT:"+str(iT))                               #fill tt volume tracer mL
         f.write("\n")
+
     intake = iT                                             # intake is injector draw volume
     shared_funcs.set_intake(intake)                          # setting global to track intake volume
     print("INJECTOR INTAKE is "+str(intake))
@@ -109,7 +110,7 @@ def filtration():
                 else:
                     (confirm_remaining_injector_vol) = True
                     remaining_injector_volume = remaining_injector_volume - filtrationTracerVolume
-                    f.write("eV:"+str(filtrationSampleVolume))         #sample volume
+                    f.write("fO:"+str(filtrationSampleVolume))         #sample volume
                     f.write("\n")
                     #TODO wait 1 second
                     #TODO inject tracer
