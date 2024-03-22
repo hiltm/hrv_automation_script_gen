@@ -1,3 +1,5 @@
+#TODO add introduction description
+
 #import cfgGen
 import params
 import subprocess

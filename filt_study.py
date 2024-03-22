@@ -1,3 +1,5 @@
+#TODO fix time estimate
+
 import os
 import params
 from datetime import datetime
@@ -77,6 +79,7 @@ def filtration():
     if same_time:
         print("Specify the time in seconds to wait between the "+str(positions)+" positions, range is between "+str(params.waitTimeBetweenTimepointSamples_min)+
           " and "+str(params.waitTimeBetweenTimepointSamples_max)+". Default is "+str(params.waitTimeBetweenTimepointSamples_dft))
+    #TODO fix logic here, if 'n' then a blank prompt : appears
     time_between_samples = shared_funcs.int_check("time_between_samples", params.waitTimeBetweenTimepointSamples_min, params.waitTimeBetweenTimepointSamples_max, params.waitTimeBetweenTimepointSamples_dft)
     ports = shared_funcs.port_selection(positions,study_type) #TODO make wording in this function study-independent
     for x in range(positions):
