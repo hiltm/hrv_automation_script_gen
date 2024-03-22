@@ -43,7 +43,7 @@ def filtration():
 
     ### intake ###
     while not(valid_response):
-        print("Specify experiment total injector volume in mL, range is between "+str(params.injectorVolume_min)+" and "+str(params.injectorVolume_max)+". Default is "+str(params.injectorVolume_dft))
+        print("Specify total injector volume to be used in mL, range is between "+str(params.injectorVolume_min)+" and "+str(params.injectorVolume_max)+". Default is "+str(params.injectorVolume_dft))
         iT=shared_funcs.int_check("iT", params.injectorVolume_min, params.injectorVolume_max, params.injectorVolume_dft)
         if iT > 0:
             using_injector = True
@@ -58,7 +58,7 @@ def filtration():
         f.write("\n")
     intake = iT                                             # intake is injector draw volume
     shared_funcs.set_intake(intake)                          # setting global to track intake volume
-    print("INTAKE is "+str(intake))
+    print("INJECTOR INTAKE is "+str(intake))
 
     print("Specify amount of filtration timepoint samples to be completed, range is between "+str(params.filtrationPositions_min)+
       " and "+str(params.filtrationPositions_max)+". Default is "+str(params.filtrationPositions_dft))
@@ -67,7 +67,7 @@ def filtration():
     print("Would you like to use the same volume between the "+str(positions)+" positions? If not you will be prompted to specify individual volumes for each port.")
     same_volume = shared_funcs.yes_or_no()
     if same_volume:
-        print("Specify the volume to be used for all "+str(positions)+" positions, range is between "+str(params.filtrationSameVolume_min)+
+        print("Specify the smaple volume in mL to be used for all "+str(positions)+" positions, range is between "+str(params.filtrationSameVolume_min)+
           " and "+str(params.filtrationSameVolume_max)+". Default is "+str(params.filtrationSameVolume_dft))
         same_volume_throughout = shared_funcs.int_check("same_volume_throughout", params.filtrationSameVolume_min, params.filtrationSameVolume_max, params.filtrationSameVolume_dft)
     print("Would you like to wait the same amount of time in seconds between the "+str(positions)+" positions? If not you will be prompted to specify individual wait times for each port.")
@@ -76,7 +76,7 @@ def filtration():
         print("Specify the time in seconds to wait between the "+str(positions)+" positions, range is between "+str(params.waitTimeBetweenTimepointSamples_min)+
           " and "+str(params.waitTimeBetweenTimepointSamples_max)+". Default is "+str(params.waitTimeBetweenTimepointSamples_dft))
     time_between_samples = shared_funcs.int_check("time_between_samples", params.waitTimeBetweenTimepointSamples_min, params.waitTimeBetweenTimepointSamples_max, params.waitTimeBetweenTimepointSamples_dft)
-    ports = shared_funcs.port_selection(positions)
+    ports = shared_funcs.port_selection(positions) #TODO make wording in this function study-independent
     for x in range(positions):
         (confirm_remaining_injector_vol) = False
         f.write("#Position "+str(x+1))
