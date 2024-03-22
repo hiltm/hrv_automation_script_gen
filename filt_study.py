@@ -5,9 +5,7 @@ import params
 from datetime import datetime
 import shared_funcs
 
-stored_ports = []
 number_of_positions = 0
-est_runtime = 0
 study_type = 'filtration'
 
 def init_cfg():
