@@ -94,7 +94,7 @@ def filtration():
         f.write("pO:"+str(ports[x]))    #go to PORT X
         f.write("\n")
         if same_volume:
-            f.write("eV:"+str(round(same_volume_throughout,2)))         #sample volume
+            f.write("fO:"+str(round(same_volume_throughout,2)))         #sample volume
             f.write("\n")
         else:
             print("Remaining injector volume to use is "+str(remaining_injector_volume)+" mL")
