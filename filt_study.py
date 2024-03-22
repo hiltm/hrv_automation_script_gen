@@ -1,4 +1,6 @@
 #TODO fix time estimate
+#TODO enter parameter for pump speed (if controllable for microgear pump)
+#TODO confirm if tracer port is one up or one down from sample port
 
 import os
 import params
