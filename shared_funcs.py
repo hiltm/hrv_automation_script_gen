@@ -21,13 +21,15 @@ def int_check(parameter, min_value, max_value, dft_value):
                 valid_answer = True
                 return number1
             
-def port_selection(timepoint_samples):
+def port_selection(timepoint_samples, study_type):
     min_value = 2
     max_value = 98
     ports = []
     final_port = False
-
-    print("Select port positions for this timepoint sample. Even ports only for an incubation study. PORT0 is HOME. PORT98 is last available port.")
+    if (study_type == 'incubation'):
+        print("Select port positions for this timepoint sample. Even ports only for an incubation study. PORT0 is HOME. PORT98 is last available port.")
+    else:
+        print("Select port positions for this filtration study. Even ports only. PORT0 is HOME. PORT98 is last available port.")
     print("=====================================")
     #num_ports = int(input("Enter number of ports collecting samples for this study : "))
     num_ports = timepoint_samples
@@ -48,7 +50,10 @@ def port_selection(timepoint_samples):
                 print("This port has already been used. Please select again.")
                 continue
             elif not(port_selection % 2 == 0):
-                print("Entry must be an even port to commence an incubation study")
+                if (study_type == 'incubation'):
+                    print("Entry must be an even port to commence an incubation study")
+                else:
+                    print("Entry must be an even port")
                 continue
             else:
                 ports.append(port_selection) # add port to array for this study
@@ -73,7 +78,10 @@ def port_selection(timepoint_samples):
                     print("This port has already been used. Please select again.")
                     continue
                 elif not(port_selection % 2 == 0):
-                    print("Entry must be an even port to commence an incubation study")
+                    if (study_type == 'incubation'):
+                        print("Entry must be an even port to commence an incubation study")
+                    else:
+                        print("Entry must be an even port")
                     continue
                 else:
                     ports.append(port_selection) # add port to array for this timepoint

@@ -6,6 +6,8 @@ import os
 import params
 from datetime import datetime
 import shared_funcs
+
+study_type = 'incubation'
             
 def init_cfg():
     f.write("#Init config")

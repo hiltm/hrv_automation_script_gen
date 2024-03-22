@@ -6,6 +6,7 @@ import shared_funcs
 stored_ports = []
 number_of_positions = 0
 est_runtime = 0
+study_type = 'filtration'
 
 def init_cfg():
     f.write("#Init config")
@@ -77,7 +78,7 @@ def filtration():
         print("Specify the time in seconds to wait between the "+str(positions)+" positions, range is between "+str(params.waitTimeBetweenTimepointSamples_min)+
           " and "+str(params.waitTimeBetweenTimepointSamples_max)+". Default is "+str(params.waitTimeBetweenTimepointSamples_dft))
     time_between_samples = shared_funcs.int_check("time_between_samples", params.waitTimeBetweenTimepointSamples_min, params.waitTimeBetweenTimepointSamples_max, params.waitTimeBetweenTimepointSamples_dft)
-    ports = shared_funcs.port_selection(positions) #TODO make wording in this function study-independent
+    ports = shared_funcs.port_selection(positions,study_type) #TODO make wording in this function study-independent
     for x in range(positions):
         (confirm_remaining_injector_vol) = False
         f.write("#Position "+str(x+1))
