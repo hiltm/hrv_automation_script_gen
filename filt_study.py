@@ -59,7 +59,7 @@ def filtration():
         else:
             valid_response = True
     if using_injector:
-        f.write("NPO:1")                                    # go to NULL port 1
+        f.write("NPO:1")                                    # go to NULL port 1 #TODO determine if necessary, likely not
         f.write("\n")
         f.write("iT:"+str(iT))                               #fill tt volume tracer mL
         f.write("\n")
@@ -76,13 +76,18 @@ def filtration():
     print("Would you like to use the same volume between the "+str(positions)+" positions? If not you will be prompted to specify individual volumes for each port.")
     same_volume = shared_funcs.yes_or_no()
     if same_volume:
-        print("Specify the smaple volume in mL to be used for all "+str(positions)+" positions, range is between "+str(params.filtrationSameVolume_min)+
+        print("Specify the sample volume in mL to be used for all "+str(positions)+" positions, range is between "+str(params.filtrationSameVolume_min)+
           " and "+str(params.filtrationSameVolume_max)+". Default is "+str(params.filtrationSameVolume_dft))
         same_volume_throughout = shared_funcs.int_check("same_volume_throughout", params.filtrationSameVolume_min, params.filtrationSameVolume_max, params.filtrationSameVolume_dft)
+        #TODO confirm is ok to use same tracer volume if same sample volume utilized; otherwise need more logic here
+        params.filtrationTracerSameVolume_max = intake / positions              #can't use more than the amount of tracer in the bag
+        print("Specify the tracer volume in mL to be used for all "+str(positions)+" positions, range is between "+str(params.filtrationTracerSameVolume_min)+
+          " and "+str(params.filtrationTracerSameVolume_max)+". Default is "+str(params.filtrationTracerSameVolume_dft))
+        same_injector_volume_throughout = shared_funcs.int_check("same_volume_throughout", params.filtrationTracerSameVolume_min, params.filtrationTracerSameVolume_max, params.filtrationTracerSameVolume_dft)
     print("Would you like to wait the same amount of time in seconds between the "+str(positions)+" positions? If not you will be prompted to specify individual wait times for each port.")
     same_time = shared_funcs.yes_or_no()
     if same_time:
-        print("Specify the time in seconds to wait between the "+str(positions)+" positions, range is between "+str(params.waitTimeBetweenTimepointSamples_min)+
+        print("Specify the time in seconds to wait between each of the "+str(positions)+" positions, range is between "+str(params.waitTimeBetweenTimepointSamples_min)+
           " and "+str(params.waitTimeBetweenTimepointSamples_max)+". Default is "+str(params.waitTimeBetweenTimepointSamples_dft))
         time_between_samples = shared_funcs.int_check("time_between_samples", params.waitTimeBetweenTimepointSamples_min, params.waitTimeBetweenTimepointSamples_max, params.waitTimeBetweenTimepointSamples_dft)
     
@@ -96,13 +101,19 @@ def filtration():
         if same_volume:
             f.write("fO:"+str(round(same_volume_throughout,2)))         #sample volume
             f.write("\n")
+            f.write("wS:1")                                    #wait for 1 second
+            f.write("\n")
+            f.write("pO:"+str(ports[x]+1))                        #go to odd PORT X+1 for tracer
+            f.write("\n")
+            f.write("iT:"+str(same_injector_volume_throughout))         #fill tt volume tracer mL
+            f.write("\n")
         else:
             print("Remaining injector volume to use is "+str(remaining_injector_volume)+" mL")
             while not((confirm_remaining_injector_vol)):
-                print("Specify amount of sample to pump through PORT "+str(ports[x])+" ,range is between "+str(params.filtrationSampleVolume_min)+
+                print("Specify amount of sample to pump through PORT "+str(ports[x])+", range is between "+str(params.filtrationSampleVolume_min)+
                     " and "+str(params.filtrationSampleVolume_max)+". Default is "+str(params.filtrationSampleVolume_dft))
                 filtrationSampleVolume = shared_funcs.int_check("filtrationSampleVolume", params.filtrationSampleVolume_min, params.filtrationSampleVolume_max, params.filtrationSampleVolume_dft)
-                print("Specify amount of tracer to pump through PORT "+str(ports[x]+1)+" ,range is between "+str(params.filtrationTracerVolume_min)+
+                print("Specify amount of tracer to pump through PORT "+str(ports[x]+1)+", range is between "+str(params.filtrationTracerVolume_min)+
                     " and "+str(params.filtrationTracerVolume_max)+". Default is "+str(params.filtrationTracerVolume_dft))
                 filtrationTracerVolume = shared_funcs.int_check("filtrationTracerVolume", params.filtrationTracerVolume_min, params.filtrationTracerVolume_max, params.filtrationTracerVolume_dft)
                 if filtrationTracerVolume > remaining_injector_volume:
@@ -112,8 +123,12 @@ def filtration():
                     remaining_injector_volume = remaining_injector_volume - filtrationTracerVolume
                     f.write("fO:"+str(filtrationSampleVolume))         #sample volume
                     f.write("\n")
-                    #TODO wait 1 second
-                    #TODO inject tracer
+                    f.write("wS:1")                                    #wait for 1 second
+                    f.write("\n")
+                    f.write("pO:"+str(ports[x]+1))                        #go to odd PORT X+1 for tracer
+                    f.write("\n")
+                    f.write("iT:"+str(filtrationTracerVolume))         #fill tt volume tracer mL
+                    f.write("\n")
 
         if same_time:
             f.write("wS:"+str(round(time_between_samples,2)))                #wait for X seconds
