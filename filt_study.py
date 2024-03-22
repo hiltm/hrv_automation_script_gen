@@ -5,8 +5,14 @@ import params
 from datetime import datetime
 import shared_funcs
 
-number_of_positions = 0
 study_type = 'filtration'
+
+def set_num_positions(x):
+    global number_of_positions
+    number_of_positions = x
+
+def get_num_positions():
+    return number_of_positions
 
 def init_cfg():
     f.write("#Init config")
@@ -65,7 +71,7 @@ def filtration():
     print("Specify amount of filtration timepoint samples to be completed, range is between "+str(params.filtrationPositions_min)+
       " and "+str(params.filtrationPositions_max)+". Default is "+str(params.filtrationPositions_dft))
     positions = shared_funcs.int_check("timepoint_samples", params.filtrationPositions_min, params.filtrationPositions_max, params.filtrationPositions_dft)
-    number_of_positions = positions
+    set_num_positions(positions)
     print("Would you like to use the same volume between the "+str(positions)+" positions? If not you will be prompted to specify individual volumes for each port.")
     same_volume = shared_funcs.yes_or_no()
     if same_volume:
@@ -135,7 +141,7 @@ def config_summary():
     print("vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv")
     print("Filtration Study Summary")
     print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
-    time = shared_funcs.get_est_runtime() * number_of_positions
+    time = shared_funcs.get_est_runtime() * get_num_positions()
     shared_funcs.set_est_runtime(time)
     print("Estimated runtime in seconds is "+str(shared_funcs.get_est_runtime())+" seconds which is "+str(round(shared_funcs.get_est_runtime()/60,2))+" minutes")
     print("Ports in use are "+str(shared_funcs.get_stored_ports()))
