@@ -59,6 +59,7 @@ def filtration():
     intake = iT                                             # intake is injector draw volume
     shared_funcs.set_intake(intake)                          # setting global to track intake volume
     print("INJECTOR INTAKE is "+str(intake))
+    remaining_injector_volume = intake
 
     print("Specify amount of filtration timepoint samples to be completed, range is between "+str(params.filtrationPositions_min)+
       " and "+str(params.filtrationPositions_max)+". Default is "+str(params.filtrationPositions_dft))
@@ -111,7 +112,7 @@ def filtration():
             time = shared_funcs.get_est_runtime() + positions * params.fillFilterTime + positions * time_between_samples
             shared_funcs.set_est_runtime(time)
         else:
-            print("Specify the time in seconds to wait after "+str(ports[x])+", range is between "+str(params.filtrationWaitTimeBetweenPositions_min)+
+            print("Specify the time in seconds to wait after PORT "+str(ports[x])+", range is between "+str(params.filtrationWaitTimeBetweenPositions_min)+
               " and "+str(params.filtrationWaitTimeBetweenPositions_max)+". Default is "+str(params.filtrationWaitTimeBetweenPositions_dft))
             incubationTestSampleWaitTime = shared_funcs.int_check("filtrationTestSampleWaitTime", params.filtrationWaitTimeBetweenPositions_min, params.filtrationWaitTimeBetweenPositions_max, params.filtrationWaitTimeBetweenPositions_dft)
             f.write("wS:"+str(incubationTestSampleWaitTime))       #wait for X seconds
