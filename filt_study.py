@@ -1,6 +1,8 @@
 #TODO fix time estimate
 #TODO enter parameter for pump speed (if controllable for microgear pump)
 #TODO confirm if tracer port is one up or one down from sample port
+#TODO make microgear function to pass new string format
+#TODO force microgear min rate to be less than programmed flow rate
 
 import os
 import params
