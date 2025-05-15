@@ -182,7 +182,7 @@ def flush():
     flush_waittime = 0                      # pre-defining
     f.write("#Incubator pre-flush")
     f.write("\n")
-    print("Specify flush cycles for incubator, range is between "+str(params.flushCycles_min)+" and "+str(params.flushCycles_max)+". Default is "+str(params.flushCycles_dft))
+    print("Specify flush cycles for incubation chamber, range is between "+str(params.flushCycles_min)+" and "+str(params.flushCycles_max)+". Default is "+str(params.flushCycles_dft))
     flush_cycles = int_check("flush_cycles", params.flushCycles_min, params.flushCycles_max, params.flushCycles_dft)
     f.write("rP:"+str(flush_cycles))        #repeat for flush_cycles times
     f.write("\n")
@@ -221,12 +221,12 @@ def flush():
 def cleaning():
     valid_response = False
     ports = []
-    f.write("#incubation study")
+    f.write("#cleaning")
     f.write("\n")
 
              ### intake ###
     while not(valid_response):
-        print("Specify experiment total incubator volume in mL, range is between "+str(params.incubatorVolume_min)+" and "+str(params.incubatorVolume_max)+". Default is "+str(params.incubatorVolume_dft))
+        print("Specify how much clean water to intake in mL, range is between "+str(params.incubatorVolume_min)+" and "+str(params.incubatorVolume_max)+". Default is "+str(params.incubatorVolume_dft))
         fV=int_check("fV", params.incubatorVolume_min, params.incubatorVolume_max, params.incubatorVolume_dft)
         if fV > params.incubatorVolume_max:
             print("The specified value for incubator intake volume ("+str(fV)+") is larger than maximum allowed ("+str(params.incubatorVolume_max)+"). Please reenter.")
@@ -241,9 +241,10 @@ def cleaning():
     print("INTAKE is "+str(intake))
 
             ### outtake ###
-    print("Specify amount of incubation chamber volume to be used during cleaning, range is between "+str(params.incubationTestIncubatorDrawVolume_min)+" and "
-          +str(params.incubationTestIncubatorDrawVolume_max)+". Default is "+str(params.incubationTestIncubatorDrawVolume_dft)+". This number will be referred to as the OUTTAKE.")
-    outtake = int_check("outtake", params.incubationTestIncubatorDrawVolume_min, params.incubationTestIncubatorDrawVolume_max, params.incubationTestIncubatorDrawVolume_dft)
+    #print("Specify amount of incubation chamber volume to be used during cleaning, range is between "+str(params.incubationTestIncubatorDrawVolume_min)+" and "
+    #      +str(params.incubationTestIncubatorDrawVolume_max)+". Default is "+str(params.incubationTestIncubatorDrawVolume_dft)+". This number will be referred to as the OUTTAKE.")
+    #outtake = int_check("outtake", params.incubationTestIncubatorDrawVolume_min, params.incubationTestIncubatorDrawVolume_max, params.incubationTestIncubatorDrawVolume_dft)
+    outtake = fV
     set_outtake(outtake)                        # setting global to track outtake volume
     print("OUTTAKE is "+str(outtake))
     remaining_chamber_volume = outtake
@@ -257,12 +258,12 @@ def cleaning():
     print("Would you like to divide the volume evenly between the "+str(timepoint_samples)+" ports to be cleaned? If not you will be prompted to specify individual cleaning volumes for each port.")
     volume_divided_evenly = yes_or_no()
 
-    print("Would you like to wait the same amount of time in seconds between the "+str(timepoint_samples)+" ports to be cleaned? If not you will be prompted to specify individual wait times for each port.")
-    time_divided_evenly = yes_or_no()
-    if time_divided_evenly:
-        print("Specify the time in seconds to wait between the "+str(timepoint_samples)+" ports to be cleaned, range is between "+str(params.waitTimeBetweenTimepointSamples_min)+
-              " and "+str(params.waitTimeBetweenTimepointSamples_max)+". Default is "+str(params.waitTimeBetweenTimepointSamples_dft))
-        time_between_samples = int_check("time_between_samples", params.waitTimeBetweenTimepointSamples_min, params.waitTimeBetweenTimepointSamples_max, params.waitTimeBetweenTimepointSamples_dft)
+    #print("Would you like to wait the same amount of time in seconds between the "+str(timepoint_samples)+" ports to be cleaned? If not you will be prompted to specify individual wait times for each port.")
+    #time_divided_evenly = yes_or_no()
+    #if time_divided_evenly:
+    #    print("Specify the time in seconds to wait between the "+str(timepoint_samples)+" ports to be cleaned, range is between "+str(params.waitTimeBetweenTimepointSamples_min)+
+    #          " and "+str(params.waitTimeBetweenTimepointSamples_max)+". Default is "+str(params.waitTimeBetweenTimepointSamples_dft))
+    #    time_between_samples = int_check("time_between_samples", params.waitTimeBetweenTimepointSamples_min, params.waitTimeBetweenTimepointSamples_max, params.waitTimeBetweenTimepointSamples_dft)
 
     ports = port_selection(timepoint_samples)
     for x in range(timepoint_samples):
@@ -278,7 +279,7 @@ def cleaning():
         else:
             print("Remaining incubation chamber volume to use for cleaning is "+str(remaining_chamber_volume)+" mL")
             while not(confirm_remaining_chamber_vol):
-                print("Specify amount of cleaning volume to pump through PORT  "+str(ports[x])+" ,range is between "+str(params.incubationTestSampleVolume_min)+
+                print("Specify amount of cleaning volume to pump through PORT "+str(ports[x])+" ,range is between "+str(params.incubationTestSampleVolume_min)+
                     " and "+str(params.incubationTestSampleVolume_max)+". Default is "+str(params.incubationTestSampleVolume_dft))
                 incubationTestSampleVolume = int_check("incubationTestSampleVolume", params.incubationTestSampleVolume_min, params.incubationTestSampleVolume_max, params.incubationTestSampleVolume_dft)
                 if incubationTestSampleVolume > remaining_chamber_volume:
@@ -289,15 +290,16 @@ def cleaning():
                     f.write("eV:"+str(incubationTestSampleVolume))         #sample volume
                     f.write("\n")
                     print("SUBSAMPLE is "+str(incubationTestSampleVolume))
-        if time_divided_evenly:
-            f.write("wS:"+str(round(time_between_samples,2)))                #wait for X seconds
-            f.write("\n")
-            time = get_est_runtime() + timepoint_samples * params.fillFilterTime + timepoint_samples * time_between_samples
-            set_est_runtime(time)
-        else:
-            print("Specify the time in seconds to wait after "+str(ports[x])+", range is between "+str(params.incubationTestSampleVolume_min)+
-                  " and "+str(params.incubationTestSampleVolume_max)+". Default is "+str(params.incubationTestSampleVolume_dft))
-            incubationTestSampleWaitTime = int_check("incubationTestSampleWaitTime", params.incubationTestSampleVolume_min, params.incubationTestSampleVolume_max, params.incubationTestSampleVolume_dft)
+        #if time_divided_evenly:
+        #    f.write("wS:"+str(round(time_between_samples,2)))                #wait for X seconds
+        #    f.write("\n")
+        #    time = get_est_runtime() + timepoint_samples * params.fillFilterTime + timepoint_samples * time_between_samples
+        #    set_est_runtime(time)
+        #else:
+        #    print("Specify the time in seconds to wait after "+str(ports[x])+", range is between "+str(params.incubationTestSampleVolume_min)+
+        #          " and "+str(params.incubationTestSampleVolume_max)+". Default is "+str(params.incubationTestSampleVolume_dft))
+        #    incubationTestSampleWaitTime = int_check("incubationTestSampleWaitTime", params.incubationTestSampleVolume_min, params.incubationTestSampleVolume_max, params.incubationTestSampleVolume_dft)
+            incubationTestSampleWaitTime = 2;
             f.write("wS:"+str(incubationTestSampleWaitTime))       #wait for X seconds
             f.write("\n")
             time = get_est_runtime() + timepoint_samples * params.fillFilterTime + timepoint_samples * incubationTestSampleWaitTime
@@ -340,6 +342,9 @@ def config_summary():
     set_est_runtime(time)
     print("Estimated runtime in seconds is "+str(get_est_runtime())+" seconds which is "+str(round(get_est_runtime()/60,2))+" minutes")
     print("Ports in use are "+str(get_stored_ports()))
+    print("********************NOTE********************")
+    print("Before loading and running this script ensure that clean water is set for the intake")
+    print("Open the ports that were used in the experiment as well")
     
 #file generation   
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
@@ -351,8 +356,9 @@ with open(filename, "w") as f:
     print("Initial configutation/first-time setup")
     print("#####################################")
     init_cfg()
-    print("Specify amount of rinse cycles to be ran, range is between "+str(params.experiments_min)+" and "+str(params.experiments_max)+". Default is "+str(params.experiments_dft))
-    experiments = int_check("experiments", params.experiments_min, params.experiments_max, params.experiments_dft)
+    #print("Specify amount of rinse cycles to be ran, range is between "+str(params.experiments_min)+" and "+str(params.experiments_max)+". Default is "+str(params.experiments_dft))
+    #experiments = int_check("experiments", params.experiments_min, params.experiments_max, params.experiments_dft)
+    experiments = 1
     for x in range(experiments):
         #TODO function for reading if chamber is empty
         f.write("#EXPERIMENT "+str(x+1)+"\n")
@@ -367,10 +373,10 @@ with open(filename, "w") as f:
         print("#####################################")
         cleaning()
         print(" ")
-        print("#####################################")
-        print("Between Rinse Cycles Parameters")
-        print("#####################################")
-        wait_for_next_experiment()
+        #print("#####################################")
+        #print("Between Rinse Cycles Parameters")
+        #print("#####################################")
+        #wait_for_next_experiment()
         zero_chamber()
         print(" ")
     config_summary()
