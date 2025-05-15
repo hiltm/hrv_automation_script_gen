@@ -17,6 +17,13 @@ def set_num_positions(x):
 def get_num_positions():
     return number_of_positions
 
+def set_tracer_source_is_incubation_chamber(x):
+    global tracer_source_is_incubation_chamber
+    tracer_source_is_incubation_chamber = x
+
+def get_tracer_source_is_incubation_chamber():
+    return tracer_source_is_incubation_chamber
+
 def init_cfg():
     f.write("#Init config")
     f.write("\n")
@@ -36,10 +43,20 @@ def init_cfg():
         f.write("\n")
         f.write("wA:"+str(deploy_waittime))     # wait for x minutes
         f.write("\n")
-    print("Note: this is a one-time setting recording physical parameters of the sytem. Specify physical total injector volume in mL, range is between "
-          +str(params.injectorPhysicalVolume_min)+" and "+str(params.injectorPhysicalVolume_max)+". Default is "+str(params.injectorPhysicalVolume_dft))
-    tV=shared_funcs.int_check("tV", params.injectorPhysicalVolume_min, params.injectorPhysicalVolume_max, params.injectorPhysicalVolume_dft)
-    f.write("tV:"+str(tV))                  # specify physical volume of instrument injection chamber
+    print("Are you using the incubation chamber or injection pump as the tracer source? Yes for incubation chamber, no for injector")
+    tracer_src = shared_funcs.yes_or_no()
+    set_tracer_source_is_incubation_chamber(tracer_src)
+    if (get_tracer_source_is_incubation_chamber):
+        # incubation chamber
+        print("Note: this is a one-time setting recording physical parameters of the sytem. Specify physical total injector volume in mL, range is between "
+            +str(params.incubatorVolume_min)+" and "+str(params.incubatorVolume_max)+". Default is "+str(params.incubatorVolume_dft))
+        tV=shared_funcs.int_check("tV", params.incubatorVolume_min, params.incubatorVolume_max, params.incubatorVolume_dft)
+    else:
+        # injection pump
+        print("Note: this is a one-time setting recording physical parameters of the sytem. Specify physical total injector volume in mL, range is between "
+                +str(params.injectorPhysicalVolume_min)+" and "+str(params.injectorPhysicalVolume_max)+". Default is "+str(params.injectorPhysicalVolume_dft))
+        tV=shared_funcs.int_check("tV", params.injectorPhysicalVolume_min, params.injectorPhysicalVolume_max, params.injectorPhysicalVolume_dft)
+    f.write("tV:"+str(tV))                  # specify physical volume of instrument tracer source
     f.write("\n")
     f.write("wHp")                          # go to HOME port to start
     f.write("\n")
@@ -62,10 +79,18 @@ def filtration():
         else:
             valid_response = True
     if using_injector:
-        f.write("NPO:1")                                    # go to NULL port 1 #TODO determine if necessary, likely not
-        f.write("\n")
-        f.write("iT:"+str(iT))                               #fill tt volume tracer mL
-        f.write("\n")
+        if get_tracer_source_is_incubation_chamber():
+            # incubation chamber
+            f.write("NPO:1")                                    # go to NULL port 1
+            f.write("\n")
+            f.write("fV:"+str(iT))                               #fill incubator nnnn mL
+            f.write("\n")
+        else:
+            # injection pump
+            f.write("NPO:1")                                    # go to NULL port 1 #TODO determine if necessary, likely not
+            f.write("\n")
+            f.write("iT:"+str(iT))                               #fill tt volume tracer mL
+            f.write("\n")
 
     intake = iT                                             # intake is injector draw volume
     shared_funcs.set_intake(intake)                          # setting global to track intake volume
@@ -108,7 +133,10 @@ def filtration():
             f.write("\n")
             f.write("pO:"+str(ports[x]+1))                        #go to odd PORT X+1 for tracer
             f.write("\n")
-            f.write("iT:"+str(same_injector_volume_throughout))         #fill tt volume tracer mL
+            if get_tracer_source_is_incubation_chamber(): #incubation chamber tracer source
+                f.write("eV:"+str(same_injector_volume_throughout))         #pump injector mL
+            else: #injector tracer source
+                f.write("iT:"+str(same_injector_volume_throughout))         #fill tt volume tracer mL
             f.write("\n")
         else:
             print("Remaining injector volume to use is "+str(remaining_injector_volume)+" mL")
@@ -130,7 +158,10 @@ def filtration():
                     f.write("\n")
                     f.write("pO:"+str(ports[x]+1))                        #go to odd PORT X+1 for tracer
                     f.write("\n")
-                    f.write("iT:"+str(filtrationTracerVolume))         #fill tt volume tracer mL
+                    if get_tracer_source_is_incubation_chamber(): #incubation chamber tracer source
+                        f.write("eV:"+str(filtrationTracerVolume))         #pump injector mL
+                    else: #injector tracer source
+                        f.write("iT:"+str(filtrationTracerVolume))         #fill tt volume tracer mL
                     f.write("\n")
 
         if same_time:
