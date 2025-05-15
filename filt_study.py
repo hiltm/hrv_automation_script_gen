@@ -84,7 +84,6 @@ def filtration():
 
     ### intake ###
     while not(valid_response):
-        #TODO put in logic for incubation selection
         if():
             #incubation chamber
             print("Specify total tracer volume to be used in mL, range is between "+str(params.incubatorVolume_min)+" and "+str(params.incubatorVolume_max)+". Default is "+str(params.incubatorVolume_dft))
