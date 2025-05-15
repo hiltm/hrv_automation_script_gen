@@ -73,7 +73,7 @@ def microgear_pump_config(microgear_volume):
                                 + str(round(microgear_pump_rate,2)) + "," + str(params.filtrationMicrogearPumpRate_min)
                                 + "," + str(params.filtrationMicrogearTimeout) )
     f.write("fO:"+microgear_pump_string)         #sample volume
-    #f.write("\n")
+    f.write("\n")
 
 def filtration():
     valid_response = False
@@ -169,7 +169,6 @@ def filtration():
                     (confirm_remaining_injector_vol) = True
                     remaining_injector_volume = remaining_injector_volume - filtrationTracerVolume        
                     microgear_pump_config(filtrationSampleVolume)       #sample volume
-                    f.write("\n")
                     f.write("wS:1")                                    #wait for 1 second
                     f.write("\n")
                     f.write("pO:"+str(ports[x]+1))                        #go to odd PORT X+1 for tracer
