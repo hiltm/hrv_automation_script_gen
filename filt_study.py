@@ -43,7 +43,7 @@ def init_cfg():
     print("Are you using the incubation chamber or injection pump as the tracer source? Yes for incubation chamber, no for injector")
     tracer_src = shared_funcs.yes_or_no()
     set_tracer_source_is_incubation_chamber(tracer_src)
-    if (get_tracer_source_is_incubation_chamber):
+    if (tracer_src):
         # incubation chamber
         print("Note: this is a one-time setting recording physical parameters of the sytem. Specify physical total injector volume in mL, range is between "
             +str(params.incubatorVolume_min)+" and "+str(params.incubatorVolume_max)+". Default is "+str(params.incubatorVolume_dft))
@@ -85,14 +85,17 @@ def filtration():
     ### intake ###
     while not(valid_response):
         #TODO put in logic for incubation selection
-        print("Specify total injector volume to be used in mL, range is between "+str(params.injectorVolume_min)+" and "+str(params.injectorVolume_max)+". Default is "+str(params.injectorVolume_dft))
-        iT=shared_funcs.int_check("iT", params.injectorVolume_min, params.injectorVolume_max, params.injectorVolume_dft)
+        if():
+            #incubation chamber
+            print("Specify total tracer volume to be used in mL, range is between "+str(params.incubatorVolume_min)+" and "+str(params.incubatorVolume_max)+". Default is "+str(params.incubatorVolume_dft))
+            iT=shared_funcs.int_check("iT", params.incubatorVolume_min, params.incubatorVolume_max, params.incubatorVolume_dft)
+        else:
+            #injection pump
+            print("Specify total tracer volume to be used in mL, range is between "+str(params.injectorVolume_min)+" and "+str(params.injectorVolume_max)+". Default is "+str(params.injectorVolume_dft))
+            iT=shared_funcs.int_check("iT", params.injectorVolume_min, params.injectorVolume_max, params.injectorVolume_dft)
         if iT > 0:
             using_injector = True
-        if iT > params.injectorVolume_max:
-            print("The specified values for injector volume ("+str(iT)+")is larger than maximum allowed ("+str(params.injectorVolume_max)+"). Please reenter.")
-        else:
-            valid_response = True
+        valid_response = True
     if using_injector:
         if get_tracer_source_is_incubation_chamber():
             # incubation chamber
@@ -192,7 +195,7 @@ def filtration():
             time = shared_funcs.get_est_runtime() + positions * params.fillFilterTime + positions * incubationTestSampleWaitTime
             shared_funcs.set_est_runtime(time)
     if same_volume:
-        print("SUBSAMPLE for all "+str(positions)+ " is "+str(round(same_volume_throughout,2) + "mL"))
+        print("SUBSAMPLE for all "+str(positions)+ " is "+str(round(same_volume_throughout,2)) + "mL")
 
 def config_summary():
     f.write("\n")
