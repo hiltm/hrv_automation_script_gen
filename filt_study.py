@@ -1,7 +1,4 @@
 #TODO fix time estimate
-#TODO enter parameter for pump speed (if controllable for microgear pump)
-#TODO make microgear function to pass new string format
-#TODO force microgear min rate to be less than programmed flow rate
 
 import os
 import params
@@ -61,6 +58,23 @@ def init_cfg():
     f.write("wHp")                          # go to HOME port to start
     f.write("\n")
 
+def microgear_pump_config(microgear_volume):
+    # direction, 1 forward, 0 reverse
+    # rate in mL/min
+    # min rate in mL/min
+    # volume in mL
+    # timeout in seconds
+
+    print("Specify the microgear pump rate in mL/min, range is between "+str(params.filtrationMicrogearPumpRate_min)+
+        " and "+str(params.filtrationMicrogearPumpRate_max)+". Default is "+str(params.filtrationMicrogearPumpRate_dft))
+    microgear_pump_rate = shared_funcs.int_check("microgear_pump_rate", params.filtrationMicrogearPumpRate_min, params.filtrationMicrogearPumpRate_max, params.filtrationMicrogearPumpRate_dft)
+
+    microgear_pump_string = str( str(params.filtrationMicrogearDirection_dft) + " " + str(round(microgear_pump_rate,2)) + " "
+                                + str(params.filtrationMicrogearPumpRate_min) + " " + str(round(microgear_volume,2))
+                                + " " + str(params.filtrationMicrogearTimeout) )
+    f.write("fO:"+microgear_pump_string)         #sample volume
+    #f.write("\n")
+
 def filtration():
     valid_response = False
     using_injector = False
@@ -70,6 +84,7 @@ def filtration():
 
     ### intake ###
     while not(valid_response):
+        #TODO put in logic for incubation selection
         print("Specify total injector volume to be used in mL, range is between "+str(params.injectorVolume_min)+" and "+str(params.injectorVolume_max)+". Default is "+str(params.injectorVolume_dft))
         iT=shared_funcs.int_check("iT", params.injectorVolume_min, params.injectorVolume_max, params.injectorVolume_dft)
         if iT > 0:
@@ -127,8 +142,7 @@ def filtration():
         f.write("pO:"+str(ports[x]))    #go to PORT X
         f.write("\n")
         if same_volume:
-            f.write("fO:"+str(round(same_volume_throughout,2)))         #sample volume
-            f.write("\n")
+            microgear_pump_config(same_volume_throughout)
             f.write("wS:1")                                    #wait for 1 second
             f.write("\n")
             f.write("pO:"+str(ports[x]+1))                        #go to odd PORT X+1 for tracer
@@ -151,8 +165,8 @@ def filtration():
                     print("Tracer volume specified exceeds remaining tracer bag volume. Max allowed volume is "+str(remaining_injector_volume)+". Please reenter.")
                 else:
                     (confirm_remaining_injector_vol) = True
-                    remaining_injector_volume = remaining_injector_volume - filtrationTracerVolume
-                    f.write("fO:"+str(filtrationSampleVolume))         #sample volume
+                    remaining_injector_volume = remaining_injector_volume - filtrationTracerVolume        
+                    microgear_pump_config(filtrationSampleVolume)       #sample volume
                     f.write("\n")
                     f.write("wS:1")                                    #wait for 1 second
                     f.write("\n")
@@ -178,7 +192,7 @@ def filtration():
             time = shared_funcs.get_est_runtime() + positions * params.fillFilterTime + positions * incubationTestSampleWaitTime
             shared_funcs.set_est_runtime(time)
     if same_volume:
-        print("SUBSAMPLE for all "+str(positions)+ " is "+str(round(same_volume_throughout,2)))
+        print("SUBSAMPLE for all "+str(positions)+ " is "+str(round(same_volume_throughout,2) + "mL"))
 
 def config_summary():
     f.write("\n")

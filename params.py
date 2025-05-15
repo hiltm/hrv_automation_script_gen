@@ -77,6 +77,11 @@ filtrationSampleVolume_dft = 500 #mL
 filtrationTracerVolume_min = 0 #mL
 filtrationTracerVolume_max = 500 #mL
 filtrationTracerVolume_dft = 50 #mL
+filtrationMicrogearPumpRate_min = 0 #mL/min
+filtrationMicrogearPumpRate_max = 100 #mL/min
+filtrationMicrogearPumpRate_dft = 100 #mL/min
+filtrationMicrogearTimeout = 100 #seconds
+filtrationMicrogearDirection_dft = 1 #1 forward, 0 reverse
 ## wait for the next position ##
 filtrationWaitTimeBetweenPositions_min = 0 #seconds
 filtrationWaitTimeBetweenPositions_max = 4800 #second
