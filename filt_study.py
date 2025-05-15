@@ -60,17 +60,17 @@ def init_cfg():
 
 def microgear_pump_config(microgear_volume):
     # direction, 1 forward, 0 reverse
+    # volume in mL
     # rate in mL/min
     # min rate in mL/min
-    # volume in mL
     # timeout in seconds
 
     print("Specify the microgear pump rate in mL/min, range is between "+str(params.filtrationMicrogearPumpRate_min)+
         " and "+str(params.filtrationMicrogearPumpRate_max)+". Default is "+str(params.filtrationMicrogearPumpRate_dft))
     microgear_pump_rate = shared_funcs.int_check("microgear_pump_rate", params.filtrationMicrogearPumpRate_min, params.filtrationMicrogearPumpRate_max, params.filtrationMicrogearPumpRate_dft)
 
-    microgear_pump_string = str( str(params.filtrationMicrogearDirection_dft) + " " + str(round(microgear_pump_rate,2)) + " "
-                                + str(params.filtrationMicrogearPumpRate_min) + " " + str(round(microgear_volume,2))
+    microgear_pump_string = str( str(params.filtrationMicrogearDirection_dft) + " " + str(round(microgear_volume,2)) + " "
+                                + str(round(microgear_pump_rate,2)) + " " + str(params.filtrationMicrogearPumpRate_min)
                                 + " " + str(params.filtrationMicrogearTimeout) )
     f.write("fO:"+microgear_pump_string)         #sample volume
     #f.write("\n")
