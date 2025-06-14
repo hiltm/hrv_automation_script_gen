@@ -36,3 +36,6 @@ This script can then be transferred to the SD card on the MS-SID microcontroller
 | EP |  | SID | Completely empty incubator |
 | IT: | SID | Inject incubator nnn (mL) tracer |
 | END | SCB | The last command, ends the script |
+
+# Exported Repo Path
+https://git.whoi.edu/ms-sid/hrv_automation_script_gen
